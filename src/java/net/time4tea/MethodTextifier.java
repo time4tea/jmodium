@@ -6,7 +6,6 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.util.Textifier;
-import org.objectweb.asm.util.TraceMethodVisitor;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,7 +23,7 @@ public class MethodTextifier {
     }
 
     public String codeFor(String method) throws IOException {
-        MT visitor = new MT();
+        MT visitor = new MT(equalTo(method));
         reader.readWith(visitor);
         return visitor.result();
     }
@@ -35,10 +34,11 @@ public class MethodTextifier {
 
         private String result;
 
-        Matcher<String> matcher = equalTo("foo");
+        private Matcher<String> nameMatcher;
 
-        public MT() {
+        public MT(Matcher<String> name) {
             super(Opcodes.ASM4);
+            this.nameMatcher = name;
         }
 
         public String result() {
@@ -47,8 +47,13 @@ public class MethodTextifier {
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-            if (matcher.matches(name)) {
-                return new TraceMethodVisitor(textifier);
+            if (nameMatcher.matches(name)) {
+                return new TraceMethodVisitor(textifier){
+                    @Override
+                    public void visitMaxs(int maxStack, int maxLocals) {
+
+                    }
+                };
             }
             return super.visitMethod(access, name, desc, signature, exceptions);
         }
@@ -60,7 +65,11 @@ public class MethodTextifier {
             textifier.print(pw);
             pw.flush();
 
-            result = writer.toString();
+            String output = writer.toString();
+
+            result = output.replaceAll("(?m)^\\s+","");
+
+
         }
     }
 }

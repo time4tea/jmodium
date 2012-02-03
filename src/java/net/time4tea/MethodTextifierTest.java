@@ -20,8 +20,24 @@ public class MethodTextifierTest {
 
         File file = CodeLocation.sourceFileFor(getClass());
 
-        assertThat(new MethodTextifier(file).codeFor("foo"), equalTo(""));
+        assertThat(new MethodTextifier(file).codeFor("foo"), equalTo(
+                lines(
+                        "GETSTATIC java/lang/System.out : Ljava/io/PrintStream;",
+                        "LDC \"xx\"",
+                        "INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V",
+                        "RETURN"
+                )
+        ));
+    }
 
+    private String lines(String... strings) {
+        StringBuilder sb = new StringBuilder();
+        for (String string : strings) {
+            sb.append(string);
+            sb.append("\n");
+        }
+
+        return sb.toString();
     }
 
 
