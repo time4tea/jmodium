@@ -9,10 +9,11 @@ import java.io.IOException;
 
 public class AsmReader {
     private File file;
+    private final int flags;
 
-    public AsmReader(File file) {
-
+    public AsmReader(File file, int flags) {
         this.file = file;
+        this.flags = flags;
     }
 
     public void readWith(ClassVisitor visitor) throws IOException {
@@ -20,7 +21,7 @@ public class AsmReader {
 
         try {
             ClassReader cr = new ClassReader(stream);
-            cr.accept(visitor, ClassReader.SKIP_DEBUG);
+            cr.accept(visitor, flags);
         } finally {
             stream.close();
         }

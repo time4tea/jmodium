@@ -1,5 +1,6 @@
 package net.time4tea;
 
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -28,7 +29,7 @@ public class AsmTest {
         ClassVisitor tracer = new TraceClassVisitor(cc, new PrintWriter(System.out));
         ClassVisitor cv = new TransformingClassAdapter(tracer);
 
-        new AsmReader(new File("out/production/asm/net/time4tea/ClassToStrip.class")).readWith(cv);
+        new AsmReader(new File("out/production/asm/net/time4tea/ClassToStrip.class"), ClassReader.SKIP_DEBUG).readWith(cv);
     }
 
     private static class TransformingClassAdapter extends ClassVisitor {

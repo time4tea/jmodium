@@ -2,16 +2,14 @@ package net.time4tea;
 
 import org.hamcrest.Matcher;
 import org.junit.Test;
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
 
-import java.io.File;
 import java.io.PrintWriter;
-import java.net.URL;
-import java.security.CodeSource;
 
 import static org.hamcrest.Matchers.equalTo;
 
@@ -26,7 +24,7 @@ public class MethodTextifier {
     @Test
     public void convertsOnlySelectedMethodsToText() throws Exception {
 
-        AsmReader reader = new AsmReader(sourceFileFor(getClass()));
+        AsmReader reader = new AsmReader(CodeLocation.sourceFileFor(getClass()), ClassReader.SKIP_DEBUG);
 
         reader.readWith(new ClassVisitor(Opcodes.ASM4) {
 
@@ -49,14 +47,5 @@ public class MethodTextifier {
                 printWriter.flush();
             }
         });
-
-
-    }
-
-    private File sourceFileFor(Class<?> aClass) {
-        CodeSource codeSource = aClass.getProtectionDomain().getCodeSource();
-        URL location = codeSource.getLocation();
-        System.out.println("location = " + location);
-        return new File(location.getFile(), aClass.getName().replaceAll("\\.", "/") + ".class");
     }
 }
