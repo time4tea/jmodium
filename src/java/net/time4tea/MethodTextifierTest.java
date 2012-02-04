@@ -14,7 +14,6 @@ public class MethodTextifierTest {
         System.out.println("xx");
     }
 
-
     @Test
     public void convertsOnlySelectedMethodsToText() throws Exception {
 
