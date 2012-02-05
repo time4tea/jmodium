@@ -41,6 +41,10 @@ public class StaticMethodRemover {
         }
     }
 
+    private static interface Delayed {
+        void donow();
+    }
+
     private static class StaticMethodRemoverClassVisitor extends ClassVisitor {
 
         private final List<Delayed> delayed = new ArrayList<Delayed>();
@@ -294,4 +298,5 @@ public class StaticMethodRemover {
             }
         }
     }
+
 }
