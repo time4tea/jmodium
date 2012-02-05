@@ -19,10 +19,12 @@ import java.util.List;
 public class StaticMethodRemover {
 
     private final File file;
+    private File outputFile;
     private final ClassWriter parent;
 
-    public StaticMethodRemover(File inputFile) {
+    public StaticMethodRemover(File inputFile, File outputFile) {
         this.file = inputFile;
+        this.outputFile = outputFile;
         this.parent = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     }
 
@@ -33,7 +35,7 @@ public class StaticMethodRemover {
                         , matcher)
         );
         byte[] bytes = parent.toByteArray();
-        FileOutputStream stream = new FileOutputStream(file);
+        FileOutputStream stream = new FileOutputStream(outputFile);
         try {
             stream.write(bytes);
         } finally {

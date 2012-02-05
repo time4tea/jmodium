@@ -2,7 +2,9 @@ package net.time4tea;
 
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 
@@ -12,22 +14,22 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class StaticMethodRemoverTest {
 
-    public void foo() {
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
+
+    private File sourceClass = CodeLocation.sourceFileFor(StaticMethodRemoverTest.class);
+
+    public void simpleMethodCallingVoidFunction() {
         String s = new String("s");
         Affirm.affirmSomeCrap(new Object(), new Object());
         System.out.println(s);
     }
 
-    public static void main(String[] args) {
-        new StaticMethodRemoverTest().foo();
-    }
-
     @Test
     public void removesSystemOutPrintlnWhenItIsTheOnlyThingInAMethod() throws Exception {
 
-        File file = CodeLocation.sourceFileFor(StaticMethodRemoverTest.class);
-
-        StaticMethodRemover remover = new StaticMethodRemover(file);
+        File outputFile = folder.newFile();
+        StaticMethodRemover remover = new StaticMethodRemover(sourceClass, outputFile);
 
         remover.remove(new TypeSafeMatcher<MethodSignature>() {
             @Override
@@ -42,7 +44,7 @@ public class StaticMethodRemoverTest {
             }
         });
 
-        assertThat(new MethodTextifier(file).codeFor("foo"), equalTo(lines(
+        assertThat(new MethodTextifier(outputFile).codeFor("simpleMethodCallingVoidFunction"), equalTo(lines(
                 "NEW java/lang/String",
                 "DUP",
                 "LDC \"s\"",
@@ -53,5 +55,9 @@ public class StaticMethodRemoverTest {
                 "INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V",
                 "RETURN"
         )));
+    }
+
+    public static void main(String[] args) {
+        new StaticMethodRemoverTest().simpleMethodCallingVoidFunction();
     }
 }
