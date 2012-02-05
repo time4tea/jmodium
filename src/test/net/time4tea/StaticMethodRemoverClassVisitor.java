@@ -190,6 +190,7 @@ public class StaticMethodRemoverClassVisitor extends ClassVisitor {
                     MyMethodVisitor.super.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
                 }
             });
+            replay();
         }
 
         @Override
