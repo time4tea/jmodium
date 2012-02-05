@@ -57,6 +57,31 @@ public class StaticMethodRemoverTest {
     }
     
     
+    @Test
+    public void removesMethodUsingLocalVariables() throws Exception {
+        remover.remove(affirmMethod());
+
+        assertThat(new MethodTextifier(outputFile).codeFor("callingTheMethodUsingLocalVariables"), equalTo(lines(
+                "LDC \"foo\"",
+                "ASTORE 1",
+                "ALOAD 1",
+                "ALOAD 1",
+                "RETURN"
+        )));
+    }
+
+    @Test
+    public void leavesMethodsWeWant() throws Exception {
+        remover.remove(affirmMethod());
+
+        assertThat(new MethodTextifier(outputFile).codeFor("differentMethodsSomeWeWantSomeWeDont"), equalTo(lines(
+                "LDC \"foo\"",
+                "LDC \"bar\"",
+                "INVOKESTATIC net/time4tea/Affirm.someCrapWeWant (Ljava/lang/Object;Ljava/lang/Object;)V",
+                "RETURN"
+        )));
+    }
+
     private TypeSafeMatcher<MethodSignature> affirmMethod() {
         return new TypeSafeMatcher<MethodSignature>() {
             @Override
