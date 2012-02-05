@@ -2,6 +2,7 @@ package net.time4tea;
 
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -17,21 +18,47 @@ public class StaticMethodRemoverTest {
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
-    private File sourceClass = CodeLocation.sourceFileFor(StaticMethodRemoverTest.class);
+    private File sourceClass = CodeLocation.sourceFileFor(StaticMethodRemoverTestData.class);
 
-    public void simpleMethodCallingVoidFunction() {
-        String s = new String("s");
-        Affirm.affirmSomeCrap(new Object(), new Object());
-        System.out.println(s);
+    private StaticMethodRemover remover;
+    private File outputFile;
+
+    @Before
+    public void setup() throws Exception {
+        outputFile = folder.newFile();
+        remover = new StaticMethodRemover(sourceClass, outputFile);
     }
 
     @Test
-    public void removesSystemOutPrintlnWhenItIsTheOnlyThingInAMethod() throws Exception {
+    public void removesMethodWhenItIsTheOnlyThingInAMethod() throws Exception {
 
-        File outputFile = folder.newFile();
-        StaticMethodRemover remover = new StaticMethodRemover(sourceClass, outputFile);
+        remover.remove(affirmMethod());
 
-        remover.remove(new TypeSafeMatcher<MethodSignature>() {
+        assertThat(new MethodTextifier(outputFile).codeFor("simpleMethodCallingVoidFunction"), equalTo(lines(
+                "RETURN"
+        )));
+    }
+
+    @Test
+    public void removesMethodWithCodeSurroundingIt() throws Exception {
+        remover.remove(affirmMethod());
+
+        assertThat(new MethodTextifier(outputFile).codeFor("simpleMethodWithSomeOtherCodeInIt"), equalTo(lines(
+                "NEW java/lang/String",
+                "DUP",
+                "LDC \"s\"",
+                "INVOKESPECIAL java/lang/String.<init> (Ljava/lang/String;)V",
+                "ASTORE 1",
+                "GETSTATIC java/lang/System.out : Ljava/io/PrintStream;",
+                "ALOAD 1",
+                "INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V",
+                "RETURN"
+        )));        
+    }
+    
+    
+    private TypeSafeMatcher<MethodSignature> affirmMethod() {
+        return new TypeSafeMatcher<MethodSignature>() {
             @Override
             protected boolean matchesSafely(MethodSignature item) {
                 return item.owner.equals("net/time4tea/Affirm") &&
@@ -42,22 +69,6 @@ public class StaticMethodRemoverTest {
             public void describeTo(Description description) {
                 // don't care
             }
-        });
-
-        assertThat(new MethodTextifier(outputFile).codeFor("simpleMethodCallingVoidFunction"), equalTo(lines(
-                "NEW java/lang/String",
-                "DUP",
-                "LDC \"s\"",
-                "INVOKESPECIAL java/lang/String.<init> (Ljava/lang/String;)V",
-                "ASTORE 1",
-                "GETSTATIC java/lang/System.out : Ljava/io/PrintStream;",
-                "ALOAD 1",
-                "INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V",
-                "RETURN"
-        )));
-    }
-
-    public static void main(String[] args) {
-        new StaticMethodRemoverTest().simpleMethodCallingVoidFunction();
+        };
     }
 }

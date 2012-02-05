@@ -18,24 +18,24 @@ import java.util.List;
 
 public class StaticMethodRemover {
 
-    private final File file;
-    private File outputFile;
+    private final File input;
+    private final File output;
     private final ClassWriter parent;
 
-    public StaticMethodRemover(File inputFile, File outputFile) {
-        this.file = inputFile;
-        this.outputFile = outputFile;
-        this.parent = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+    public StaticMethodRemover(File input, File output) {
+        this.input = input;
+        this.output = output;
+        this.parent = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
     }
 
     public void remove(Matcher<MethodSignature> matcher) throws IOException {
-        new AsmReader(file, 0).readWith(
+        new AsmReader(input, 0).readWith(
                 new StaticMethodRemoverClassVisitor(
                         new CheckClassAdapter(parent)
                         , matcher)
         );
         byte[] bytes = parent.toByteArray();
-        FileOutputStream stream = new FileOutputStream(outputFile);
+        FileOutputStream stream = new FileOutputStream(output);
         try {
             stream.write(bytes);
         } finally {
@@ -49,7 +49,6 @@ public class StaticMethodRemover {
 
     private static class StaticMethodRemoverClassVisitor extends ClassVisitor {
 
-        private final List<Delayed> delayed = new ArrayList<Delayed>();
         private final Matcher<MethodSignature> matcher;
 
         public StaticMethodRemoverClassVisitor(ClassVisitor parent, Matcher<MethodSignature> matcher) {
@@ -63,6 +62,8 @@ public class StaticMethodRemover {
         }
 
         private class MyMethodVisitor extends MethodVisitor {
+            private final List<Delayed> delayed = new ArrayList<Delayed>();
+
             public MyMethodVisitor(MethodVisitor methodVisitor) {
                 super(Opcodes.ASM4, methodVisitor);
             }
@@ -193,7 +194,6 @@ public class StaticMethodRemover {
             @Override
             public void visitMethodInsn(final int opcode, final String owner, final String name, final String desc) {
                 if (matcher.matches(new MethodSignature(owner, name, desc))) {
-                    System.out.println("StaticMethodRemoverClassVisitor$MyMethodVisitor.visitMethodInsn");
                     delayed.clear();
                 } else {
                     delayed.add(new Delayed() {
@@ -300,5 +300,4 @@ public class StaticMethodRemover {
             }
         }
     }
-
 }
