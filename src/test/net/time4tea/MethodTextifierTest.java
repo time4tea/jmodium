@@ -29,7 +29,7 @@ public class MethodTextifierTest {
         ));
     }
 
-    private String lines(String... strings) {
+    public static String lines(String... strings) {
         StringBuilder sb = new StringBuilder();
         for (String string : strings) {
             sb.append(string);
