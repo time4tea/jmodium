@@ -53,8 +53,5 @@ public class StaticMethodRemoverTest {
                 "INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V",
                 "RETURN"
         )));
-
-
     }
-
 }
