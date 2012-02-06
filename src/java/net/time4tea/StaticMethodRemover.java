@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class StaticMethodRemover {
@@ -47,6 +48,19 @@ public class StaticMethodRemover {
         void donow();
     }
 
+    private static abstract class DescribableDelayed implements Delayed {
+        private final String desc;
+
+        protected DescribableDelayed(String desc) {
+            this.desc = desc;
+        }
+
+        @Override
+        public String toString() {
+            return desc;
+        }
+    }
+    
     private static class StaticMethodRemoverClassVisitor extends ClassVisitor {
 
         private final Matcher<MethodSignature> matcher;
@@ -70,7 +84,7 @@ public class StaticMethodRemover {
 
             @Override
             public void visitAttribute(final Attribute attr) {
-                delayed.add(new Delayed() {
+                delayed.add(new DescribableDelayed("visit attribute " + attr) {
                     @Override
                     public void donow() {
                         MyMethodVisitor.super.visitAttribute(attr);
@@ -79,21 +93,33 @@ public class StaticMethodRemover {
             }
 
             @Override
+            public void visitCode() {
+                delayed.add(new Delayed() {
+                    @Override
+                    public void donow() {
+                        MyMethodVisitor.super.visitCode();
+                    }
+                });
+                replay();
+            }
+
+            @Override
+            public void visitLabel(final Label label) {
+                delayed.add(new DescribableDelayed("label " + label) {
+                    @Override
+                    public void donow() {
+                        MyMethodVisitor.super.visitLabel(label);
+                    }
+                });
+                replay();
+            }
+
+            @Override
             public void visitFrame(final int type, final int nLocal, final Object[] local, final int nStack, final Object[] stack) {
                 delayed.add(new Delayed() {
                     @Override
                     public void donow() {
                         MyMethodVisitor.super.visitFrame(type, nLocal, local, nStack, stack);
-                    }
-                });
-            }
-
-            @Override
-            public void visitLabel(final Label label) {
-                delayed.add(new Delayed() {
-                    @Override
-                    public void donow() {
-                        MyMethodVisitor.super.visitLabel(label);
                     }
                 });
             }
@@ -116,7 +142,6 @@ public class StaticMethodRemover {
                         MyMethodVisitor.super.visitLineNumber(line, start);
                     }
                 });
-                replay();
             }
 
             @Override
@@ -130,23 +155,15 @@ public class StaticMethodRemover {
             }
 
             @Override
-            public void visitCode() {
-                delayed.add(new Delayed() {
-                    @Override
-                    public void donow() {
-                        MyMethodVisitor.super.visitCode();
-                    }
-                });
-            }
-
-            @Override
             public void visitInsn(final int opcode) {
+
                 delayed.add(new Delayed() {
                     @Override
                     public void donow() {
                         MyMethodVisitor.super.visitInsn(opcode);
                     }
                 });
+
             }
 
             @Override
@@ -167,12 +184,11 @@ public class StaticMethodRemover {
                         MyMethodVisitor.super.visitVarInsn(opcode, var);
                     }
                 });
-                replay();
             }
 
             @Override
             public void visitTypeInsn(final int opcode, final String type) {
-                delayed.add(new Delayed() {
+                delayed.add(new DescribableDelayed("type insn" + opcode + "/" + type) {
                     @Override
                     public void donow() {
                         MyMethodVisitor.super.visitTypeInsn(opcode, type);
@@ -183,7 +199,7 @@ public class StaticMethodRemover {
 
             @Override
             public void visitFieldInsn(final int opcode, final String owner, final String name, final String desc) {
-                delayed.add(new Delayed() {
+                delayed.add(new DescribableDelayed("fields insn" + opcode + "/" + owner + "/" + name + "/" + desc) {
                     @Override
                     public void donow() {
                         MyMethodVisitor.super.visitFieldInsn(opcode, owner, name, desc);
@@ -196,7 +212,7 @@ public class StaticMethodRemover {
                 if (matcher.matches(new MethodSignature(owner, name, desc))) {
                     delayed.clear();
                 } else {
-                    delayed.add(new Delayed() {
+                    delayed.add(new DescribableDelayed("method " + owner + "/" + name + "/" + desc) {
                         @Override
                         public void donow() {
                             MyMethodVisitor.super.visitMethodInsn(opcode, owner, name, desc);
@@ -220,7 +236,7 @@ public class StaticMethodRemover {
 
             @Override
             public void visitInvokeDynamicInsn(final String name, final String desc, final Handle bsm, final Object... bsmArgs) {
-                delayed.add(new Delayed() {
+                delayed.add(new DescribableDelayed("invoke dynamic " + name + "/" + desc + "/" + bsm + " / " + Arrays.toString(bsmArgs)) {
                     @Override
                     public void donow() {
                         MyMethodVisitor.super.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
@@ -297,6 +313,37 @@ public class StaticMethodRemover {
                         MyMethodVisitor.super.visitLocalVariable(name, desc, signature, start, end, index);
                     }
                 });
+            }
+        }
+
+        private boolean isPush(int opcode) {
+            switch (opcode) {
+                case Opcodes.AALOAD:
+                case Opcodes.BALOAD:
+                case Opcodes.CALOAD:
+                case Opcodes.DALOAD:
+                case Opcodes.FALOAD:
+                case Opcodes.IALOAD:
+                case Opcodes.LALOAD:
+                case Opcodes.SALOAD:
+
+                case Opcodes.ALOAD:
+                case Opcodes.DLOAD:
+                case Opcodes.FLOAD:
+                case Opcodes.ILOAD:
+                case Opcodes.LLOAD:
+
+                case Opcodes.DUP:
+                case Opcodes.DUP2:
+                case Opcodes.DUP_X1:
+                case Opcodes.DUP_X2:
+                case Opcodes.DUP2_X1:
+                case Opcodes.DUP2_X2:
+
+                    return true;
+
+                default:
+                    return false;
             }
         }
     }
