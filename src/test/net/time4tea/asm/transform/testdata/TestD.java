@@ -1,6 +1,6 @@
-package net.time4tea.testdata;
+package net.time4tea.asm.transform.testdata;
 
-import net.time4tea.Affirm;
+import net.time4tea.asm.transform.Affirm;
 
 public class TestD {
     @SuppressWarnings("UnusedDeclaration")

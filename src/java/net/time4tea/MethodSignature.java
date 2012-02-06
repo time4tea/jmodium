@@ -11,4 +11,13 @@ public class MethodSignature {
         this.name = name;
         this.desc = desc;
     }
+
+    @Override
+    public String toString() {
+        return "MethodSignature{" +
+                "owner='" + owner + '\'' +
+                ", name='" + name + '\'' +
+                ", desc='" + desc + '\'' +
+                '}';
+    }
 }

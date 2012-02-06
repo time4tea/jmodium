@@ -1,6 +1,7 @@
-package net.time4tea;
+package net.time4tea.asm.transform;
 
 import com.google.common.base.Predicate;
+import net.time4tea.MethodSignature;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Handle;
@@ -175,7 +176,8 @@ public class StaticMethodRemoverClassVisitor extends ClassVisitor {
 
         @Override
         public void visitMethodInsn(final int opcode, final String owner, final String name, final String desc) {
-            if (predicate.apply(new MethodSignature(owner, name, desc))) {
+            MethodSignature signature = new MethodSignature(owner, name, desc);
+            if (predicate.apply(signature)) {
                 delayed.clear();
             } else {
                 delayed.add(new DescribableDelayed("method " , owner ,  name , desc) {

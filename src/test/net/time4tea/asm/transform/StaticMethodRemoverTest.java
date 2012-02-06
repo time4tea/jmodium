@@ -1,11 +1,15 @@
-package net.time4tea;
+package net.time4tea.asm.transform;
 
 import com.google.common.base.Predicate;
-import net.time4tea.testdata.TestA;
-import net.time4tea.testdata.TestB;
-import net.time4tea.testdata.TestC;
-import net.time4tea.testdata.TestD;
-import net.time4tea.testdata.TestE;
+import net.time4tea.CodeLocation;
+import net.time4tea.MethodSignature;
+import net.time4tea.MethodTextifier;
+import net.time4tea.asm.transform.testdata.TestA;
+import net.time4tea.asm.transform.testdata.TestB;
+import net.time4tea.asm.transform.testdata.TestC;
+import net.time4tea.asm.transform.testdata.TestD;
+import net.time4tea.asm.transform.testdata.TestE;
+import org.hamcrest.MatcherAssert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,7 +43,7 @@ public class StaticMethodRemoverTest {
 
         remover.remove(affirmMethod());
 
-        assertThat(new MethodTextifier(outputFile).codeFor("simpleMethodCallingVoidFunction"), equalTo(lines(
+        MatcherAssert.assertThat(new MethodTextifier(outputFile).codeFor("simpleMethodCallingVoidFunction"), equalTo(lines(
                 "RETURN"
         )));
     }
@@ -95,7 +99,7 @@ public class StaticMethodRemoverTest {
         assertThat(new MethodTextifier(outputFile).codeFor("differentMethodsSomeWeWantSomeWeDont"), equalTo(lines(
                 "LDC \"foo\"",
                 "LDC \"bar\"",
-                "INVOKESTATIC net/time4tea/Affirm.someCrapWeWant (Ljava/lang/Object;Ljava/lang/Object;)V",
+                "INVOKESTATIC net/time4tea/asm/transform/Affirm.someCrapWeWant (Ljava/lang/Object;Ljava/lang/Object;)V",
                 "RETURN"
         )));
     }
@@ -122,7 +126,8 @@ public class StaticMethodRemoverTest {
         return new Predicate<MethodSignature>() {
             @Override
             public boolean apply(MethodSignature item) {
-                return item.owner.equals("net/time4tea/Affirm") &&
+                String classId = Affirm.class.getName().replaceAll("\\.", "/");
+                return item.owner.equals(classId) &&
                         item.name.equals("affirmSomeCrap");
             }
         };
