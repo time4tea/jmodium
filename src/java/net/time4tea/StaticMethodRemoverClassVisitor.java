@@ -124,7 +124,6 @@ public class StaticMethodRemoverClassVisitor extends ClassVisitor {
 
         @Override
         public void visitInsn(final int opcode) {
-
             delayed.add(new DescribableDelayed("insn", opcode) {
                 @Override
                 public void donow() {
@@ -162,7 +161,6 @@ public class StaticMethodRemoverClassVisitor extends ClassVisitor {
                     MyMethodVisitor.super.visitTypeInsn(opcode, type);
                 }
             });
-
         }
 
         @Override
