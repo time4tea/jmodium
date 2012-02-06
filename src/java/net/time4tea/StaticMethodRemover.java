@@ -315,36 +315,5 @@ public class StaticMethodRemover {
                 delayed.clear();
             }
         }
-
-        private boolean isPush(int opcode) {
-            switch (opcode) {
-                case Opcodes.AALOAD:
-                case Opcodes.BALOAD:
-                case Opcodes.CALOAD:
-                case Opcodes.DALOAD:
-                case Opcodes.FALOAD:
-                case Opcodes.IALOAD:
-                case Opcodes.LALOAD:
-                case Opcodes.SALOAD:
-
-                case Opcodes.ALOAD:
-                case Opcodes.DLOAD:
-                case Opcodes.FLOAD:
-                case Opcodes.ILOAD:
-                case Opcodes.LLOAD:
-
-                case Opcodes.DUP:
-                case Opcodes.DUP2:
-                case Opcodes.DUP_X1:
-                case Opcodes.DUP_X2:
-                case Opcodes.DUP2_X1:
-                case Opcodes.DUP2_X2:
-
-                    return true;
-
-                default:
-                    return false;
-            }
-        }
     }
 }
