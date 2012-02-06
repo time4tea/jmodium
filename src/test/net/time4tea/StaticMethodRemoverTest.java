@@ -1,12 +1,11 @@
 package net.time4tea;
 
+import com.google.common.base.Predicate;
 import net.time4tea.testdata.TestA;
 import net.time4tea.testdata.TestB;
 import net.time4tea.testdata.TestC;
 import net.time4tea.testdata.TestD;
 import net.time4tea.testdata.TestE;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -119,17 +118,12 @@ public class StaticMethodRemoverTest {
         )));
     }
 
-    private TypeSafeMatcher<MethodSignature> affirmMethod() {
-        return new TypeSafeMatcher<MethodSignature>() {
+    private Predicate<MethodSignature> affirmMethod() {
+        return new Predicate<MethodSignature>() {
             @Override
-            protected boolean matchesSafely(MethodSignature item) {
+            public boolean apply(MethodSignature item) {
                 return item.owner.equals("net/time4tea/Affirm") &&
                         item.name.equals("affirmSomeCrap");
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                // don't care
             }
         };
     }

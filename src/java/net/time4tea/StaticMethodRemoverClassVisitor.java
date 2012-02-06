@@ -1,6 +1,6 @@
 package net.time4tea;
 
-import org.hamcrest.Matcher;
+import com.google.common.base.Predicate;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Handle;
@@ -14,11 +14,11 @@ import java.util.List;
 
 public class StaticMethodRemoverClassVisitor extends ClassVisitor {
 
-    private final Matcher<MethodSignature> matcher;
+    private final Predicate<MethodSignature> predicate;
 
-    public StaticMethodRemoverClassVisitor(ClassVisitor parent, Matcher<MethodSignature> matcher) {
+    public StaticMethodRemoverClassVisitor(ClassVisitor parent, Predicate<MethodSignature> predicate) {
         super(Opcodes.ASM4, parent);
-        this.matcher = matcher;
+        this.predicate = predicate;
     }
 
     @Override
@@ -175,7 +175,7 @@ public class StaticMethodRemoverClassVisitor extends ClassVisitor {
 
         @Override
         public void visitMethodInsn(final int opcode, final String owner, final String name, final String desc) {
-            if (matcher.matches(new MethodSignature(owner, name, desc))) {
+            if (predicate.apply(new MethodSignature(owner, name, desc))) {
                 delayed.clear();
             } else {
                 delayed.add(new DescribableDelayed("method " , owner ,  name , desc) {

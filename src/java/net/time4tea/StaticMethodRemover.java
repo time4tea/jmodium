@@ -1,6 +1,6 @@
 package net.time4tea;
 
-import org.hamcrest.Matcher;
+import com.google.common.base.Predicate;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.util.CheckClassAdapter;
 
@@ -20,7 +20,7 @@ public class StaticMethodRemover {
         this.parent = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
     }
 
-    public void remove(Matcher<MethodSignature> matcher) throws IOException {
+    public void remove(Predicate<MethodSignature> matcher) throws IOException {
         new AsmReader(input, 0).readWith(
                 new StaticMethodRemoverClassVisitor(
                         new CheckClassAdapter(parent)
