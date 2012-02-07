@@ -4,9 +4,9 @@ import org.objectweb.asm.Type;
 
 public class MethodSignature {
 
-    public final String owner;
-    public final String name;
-    public final String desc;
+    private final String owner;
+    private final String name;
+    private final String desc;
 
     public MethodSignature(String owner, String name, String desc) {
         this.owner = owner;
@@ -29,5 +29,9 @@ public class MethodSignature {
     
     public String className() {
         return owner.replaceAll("/", ".");
+    }
+
+    public String methodName() {
+        return name;
     }
 }

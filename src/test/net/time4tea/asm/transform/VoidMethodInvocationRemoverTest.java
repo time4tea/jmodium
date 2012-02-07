@@ -117,7 +117,7 @@ public class VoidMethodInvocationRemoverTest {
             @Override
             public boolean apply(MethodSignature methodSignature) {
                 return methodSignature.className().equals(TestH.Logger.class.getName())
-                        && methodSignature.name.equals("error");
+                        && methodSignature.methodName().equals("error");
             }
         });
 
@@ -131,7 +131,7 @@ public class VoidMethodInvocationRemoverTest {
             @Override
             public boolean apply(MethodSignature item) {
                 return item.className().equals(Affirm.class.getName()) &&
-                        item.name.equals(method);
+                        item.methodName().equals(method);
             }
         };
     }
