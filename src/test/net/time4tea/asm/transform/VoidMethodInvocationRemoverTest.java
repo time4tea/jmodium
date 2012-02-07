@@ -13,7 +13,6 @@ import net.time4tea.asm.transform.testdata.TestF;
 import net.time4tea.asm.transform.testdata.TestG;
 import net.time4tea.asm.transform.testdata.TestH;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -109,8 +108,7 @@ public class VoidMethodInvocationRemoverTest {
         );
     }
 
-    @Ignore
-     @Test
+    @Test
     public void removesVoidNonStaticInvocations() throws Exception {
 
         File input = CodeLocation.sourceFileFor(TestH.class);
@@ -118,11 +116,13 @@ public class VoidMethodInvocationRemoverTest {
         MethodTextifier processed = removeMethodCalls(input, new Predicate<MethodSignature>() {
             @Override
             public boolean apply(MethodSignature methodSignature) {
-                return methodSignature.className().equals(TestH.Logger.class.getName());
+                return methodSignature.className().equals(TestH.Logger.class.getName())
+                        && methodSignature.name.equals("error");
             }
         });
 
-        assertThat(processed.codeFor("nonStaticInvocation"),
+        String nonStaticInvocation = processed.codeFor("nonStaticInvocation");
+        assertThat(nonStaticInvocation,
                 equalTo(new MethodTextifier(input).codeFor("nonStaticInvocationExpectedResult"))
         );
     }
