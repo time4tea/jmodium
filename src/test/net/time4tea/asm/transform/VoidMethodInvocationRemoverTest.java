@@ -121,8 +121,7 @@ public class VoidMethodInvocationRemoverTest {
             }
         });
 
-        String nonStaticInvocation = processed.codeFor("nonStaticInvocation");
-        assertThat(nonStaticInvocation,
+        assertThat(processed.codeFor("nonStaticInvocation"),
                 equalTo(new MethodTextifier(input).codeFor("nonStaticInvocationExpectedResult"))
         );
     }
