@@ -11,8 +11,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.util.TraceClassVisitor;
 
 import java.io.File;
+import java.io.PrintWriter;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -40,7 +42,7 @@ public class DebugInformationAdderTest {
             public boolean apply(MethodSignature methodSignature) {
                 return methodSignature.className().equals(TestA.OriginalLogger.class.getName());
             }
-        });
+        }, new DiagnosticsAddingInvocationMangler(TestA.DiagnosticLogger.class));
 
         assertThat(result.codeFor("aBuggyMethod"),
                 equalTo(new MethodTextifier(input).codeFor("aBuggyMethodExpectedResult"))
@@ -48,16 +50,34 @@ public class DebugInformationAdderTest {
     }
 
     private MethodTextifier adaptMethodCalls(File input,
-                                             final Predicate<MethodSignature> predicate) throws Exception {
+                                             final Predicate<MethodSignature> predicate,
+                                             final DiagnosticsAddingInvocationMangler diagnosticsAddingInvocationMangler) throws Exception {
         ClassAdapter adapter = new ClassAdapter(input, outputFile);
 
         adapter.adaptWith(new AdapterChain() {
             @Override
             public ClassVisitor insertInto(ClassVisitor visitor) {
-                return new VoidMethodInvocationRemover(visitor, predicate);
+                return new DebugInformationAdder(visitor, predicate, diagnosticsAddingInvocationMangler);
             }
         });
 
         return new MethodTextifier(outputFile);
+    }
+    
+    
+    
+    
+    @Test
+    public void wtf() throws Exception {
+
+        File input = CodeLocation.sourceFileFor(TestA.DiagnosticLogger.class);
+        ClassAdapter adapter = new ClassAdapter(input, outputFile);
+        
+        adapter.adaptWith(new AdapterChain() {
+            @Override
+            public ClassVisitor insertInto(ClassVisitor visitor) {
+                return new TraceClassVisitor(visitor, new PrintWriter(System.out));
+            }
+        });
     }
 }
