@@ -7,4 +7,9 @@ public class TestA {
     public void simpleMethodCallingVoidFunction() {
         Affirm.affirmSomeCrap(new Object(), new Object());
     }
+
+    @SuppressWarnings("UnusedDeclaration")
+    public void simpleMethodCallingVoidFunctionExpectedResult() {
+    }
+
 }

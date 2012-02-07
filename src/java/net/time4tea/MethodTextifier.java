@@ -17,14 +17,19 @@ import static org.hamcrest.Matchers.equalTo;
 public class MethodTextifier {
 
     private final AsmReader reader;
+    private final File file;
 
     public MethodTextifier(File f) {
-        reader = new AsmReader(f, ClassReader.SKIP_DEBUG);
+        file = f;
+        reader = new AsmReader(file, ClassReader.SKIP_DEBUG);
     }
 
     public String codeFor(String method) throws IOException {
         MT visitor = new MT(equalTo(method));
         reader.readWith(visitor);
+        if ( ! visitor.found ) {
+            throw new IOException("File " + file + " didn't contain method " + method);
+        }
         return visitor.result();
     }
 
@@ -35,6 +40,8 @@ public class MethodTextifier {
         private String result;
 
         private Matcher<String> nameMatcher;
+
+        private boolean found = false;
 
         public MT(Matcher<String> name) {
             super(Opcodes.ASM4);
@@ -48,6 +55,7 @@ public class MethodTextifier {
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
             if (nameMatcher.matches(name)) {
+                found = true;
                 return new TraceMethodVisitor(textifier){
                     @Override
                     public void visitMaxs(int maxStack, int maxLocals) {

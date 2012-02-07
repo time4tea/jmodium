@@ -102,6 +102,7 @@ public class StaticMethodRemover extends ClassVisitor {
                     MyMethodVisitor.super.visitTryCatchBlock(start, end, handler, type);
                 }
             });
+            replay();
         }
 
         @Override

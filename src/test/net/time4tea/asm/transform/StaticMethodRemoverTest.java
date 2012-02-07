@@ -10,7 +10,7 @@ import net.time4tea.asm.transform.testdata.TestC;
 import net.time4tea.asm.transform.testdata.TestD;
 import net.time4tea.asm.transform.testdata.TestE;
 import net.time4tea.asm.transform.testdata.TestF;
-import org.hamcrest.MatcherAssert;
+import net.time4tea.asm.transform.testdata.TestG;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,7 +19,6 @@ import org.objectweb.asm.ClassVisitor;
 
 import java.io.File;
 
-import static net.time4tea.MethodTextifierTest.lines;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -38,73 +37,74 @@ public class StaticMethodRemoverTest {
     @Test
     public void removesMethodWhenItIsTheOnlyThingInAMethod() throws Exception {
 
-        removeMethodCalls(TestA.class, affirmMethod("affirmSomeCrap"));
+        File input = CodeLocation.sourceFileFor(TestA.class);
+        MethodTextifier processed = removeMethodCalls(input, affirmMethod("affirmSomeCrap"));
 
-        MatcherAssert.assertThat(new MethodTextifier(outputFile).codeFor("simpleMethodCallingVoidFunction"), equalTo(lines(
-                "RETURN"
-        )));
+        assertThat(processed.codeFor("simpleMethodCallingVoidFunction"),
+                equalTo(new MethodTextifier(input).codeFor("simpleMethodCallingVoidFunctionExpectedResult"))
+        );
     }
 
     @Test
     public void removesMethodWithCodeSurroundingIt() throws Exception {
-        
-        removeMethodCalls(TestB.class, affirmMethod("affirmSomeCrap"));
-        
-        assertThat(new MethodTextifier(outputFile).codeFor("simpleMethodWithSomeOtherCodeInIt"), equalTo(lines(
-                "NEW java/lang/String",
-                "DUP",
-                "LDC \"s\"",
-                "INVOKESPECIAL java/lang/String.<init> (Ljava/lang/String;)V",
-                "ASTORE 1",
-                "GETSTATIC java/lang/System.out : Ljava/io/PrintStream;",
-                "ALOAD 1",
-                "INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V",
-                "RETURN"
-        )));
+
+        File input = CodeLocation.sourceFileFor(TestB.class);
+        MethodTextifier processed = removeMethodCalls(input, affirmMethod("affirmSomeCrap"));
+
+        assertThat(processed.codeFor("simpleMethodWithSomeOtherCodeInIt"),
+                equalTo(new MethodTextifier(input).codeFor("simpleMethodWithSomeOtherCodeInItExpectedResult"))
+        );
     }
 
     @Test
     public void removesMethodUsingLocalVariables() throws Exception {
 
-        removeMethodCalls(TestC.class, affirmMethod("affirmSomeCrap"));
+        File input = CodeLocation.sourceFileFor(TestC.class);
+        MethodTextifier processed = removeMethodCalls(input, affirmMethod("affirmSomeCrap"));
 
-        assertThat(new MethodTextifier(outputFile).codeFor("callingTheMethodUsingLocalVariables"), equalTo(lines(
-                "LDC \"foo\"",
-                "ASTORE 1",
-                "RETURN"
-        )));
+        assertThat(processed.codeFor("callingTheMethodUsingLocalVariables"),
+                equalTo(new MethodTextifier(input).codeFor("callingTheMethodUsingLocalVariablesExpectedResult"))
+        );
     }
 
     @Test
     public void leavesMethodsWeWant() throws Exception {
 
-        removeMethodCalls(TestD.class, affirmMethod("affirmSomeCrap"));
+        File input = CodeLocation.sourceFileFor(TestD.class);
+        MethodTextifier processed = removeMethodCalls(input, affirmMethod("affirmSomeCrap"));
 
-        assertThat(new MethodTextifier(outputFile).codeFor("differentMethodsSomeWeWantSomeWeDont"), equalTo(lines(
-                "LDC \"foo\"",
-                "LDC \"bar\"",
-                "INVOKESTATIC net/time4tea/asm/transform/Affirm.someCrapWeWant (Ljava/lang/Object;Ljava/lang/Object;)V",
-                "RETURN"
-        )));
+        assertThat(processed.codeFor("differentMethodsSomeWeWantSomeWeDont"),
+                equalTo(new MethodTextifier(input).codeFor("differentMethodsSomeWeWantSomeWeDontExpectedResult"))
+        );
     }
 
     @Test
     public void leavesLocalVariableAnnotations() throws Exception {
 
-        removeMethodCalls(TestE.class, affirmMethod("affirmSomeCrap"));
+        File input = CodeLocation.sourceFileFor(TestE.class);
+        MethodTextifier processed = removeMethodCalls(input, affirmMethod("affirmSomeCrap"));
 
-        assertThat(new MethodTextifier(outputFile).codeFor("localVariableAnnotated"), equalTo(lines(
-                "NEW java/lang/String",
-                "DUP",
-                "INVOKESPECIAL java/lang/String.<init> ()V",
-                "ASTORE 1",
-                "RETURN"
-        )));
+        assertThat(processed.codeFor("localVariableAnnotated"),
+                equalTo(new MethodTextifier(input).codeFor("localVariableAnnotatedExpectedResult"))
+        );
     }
 
     @Test(expected = AdapterException.class)
     public void refusesToRemoveAMethodThatIsNotVoid() throws Exception {
-        removeMethodCalls(TestF.class, affirmMethod("affirmSomeCrapReturnString"));
+        File input = CodeLocation.sourceFileFor(TestF.class);
+        removeMethodCalls(input, affirmMethod("affirmSomeCrapReturnString"));
+    }
+
+    @Test
+    public void removesMethodInTryCatchBlock() throws Exception {
+
+        File input = CodeLocation.sourceFileFor(TestG.class);
+
+        MethodTextifier processed = removeMethodCalls(input, affirmMethod("affirmSomeCrap"));
+
+        assertThat(processed.codeFor("aTryCatchBlock"),
+                equalTo(new MethodTextifier(input).codeFor("aTryCatchBlockExpectedResult"))
+        );
     }
 
     private Predicate<MethodSignature> affirmMethod(final String method) {
@@ -118,11 +118,8 @@ public class StaticMethodRemoverTest {
         };
     }
 
-    private void removeMethodCalls(Class<?> aClass, final Predicate<MethodSignature> predicate) throws Exception {
-        ClassAdapter adapter = new ClassAdapter(
-                CodeLocation.sourceFileFor(aClass),
-                outputFile
-        );
+    private MethodTextifier removeMethodCalls(File input, final Predicate<MethodSignature> predicate) throws Exception {
+        ClassAdapter adapter = new ClassAdapter(input, outputFile);
 
         adapter.adaptWith(new AdapterChain() {
             @Override
@@ -130,5 +127,7 @@ public class StaticMethodRemoverTest {
                 return new StaticMethodRemover(visitor, predicate);
             }
         });
+
+        return new MethodTextifier(outputFile);
     }
 }
