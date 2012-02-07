@@ -14,8 +14,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.objectweb.asm.ClassVisitor;
 
 import java.io.File;
+import java.io.IOException;
 
 import static net.time4tea.MethodTextifierTest.lines;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -36,12 +38,7 @@ public class StaticMethodRemoverTest {
     @Test
     public void removesMethodWhenItIsTheOnlyThingInAMethod() throws Exception {
 
-        StaticMethodRemover remover = new StaticMethodRemover(
-                CodeLocation.sourceFileFor(TestA.class),
-                outputFile
-        );
-
-        remover.remove(affirmMethod());
+        removeMethodCalls(TestA.class, affirmMethod());
 
         MatcherAssert.assertThat(new MethodTextifier(outputFile).codeFor("simpleMethodCallingVoidFunction"), equalTo(lines(
                 "RETURN"
@@ -50,14 +47,9 @@ public class StaticMethodRemoverTest {
 
     @Test
     public void removesMethodWithCodeSurroundingIt() throws Exception {
-
-        StaticMethodRemover remover = new StaticMethodRemover(
-                CodeLocation.sourceFileFor(TestB.class),
-                outputFile
-        );
-
-        remover.remove(affirmMethod());
-
+        
+        removeMethodCalls(TestB.class, affirmMethod());
+        
         assertThat(new MethodTextifier(outputFile).codeFor("simpleMethodWithSomeOtherCodeInIt"), equalTo(lines(
                 "NEW java/lang/String",
                 "DUP",
@@ -73,12 +65,8 @@ public class StaticMethodRemoverTest {
 
     @Test
     public void removesMethodUsingLocalVariables() throws Exception {
-        StaticMethodRemover remover = new StaticMethodRemover(
-                CodeLocation.sourceFileFor(TestC.class),
-                outputFile
-        );
 
-        remover.remove(affirmMethod());
+        removeMethodCalls(TestC.class, affirmMethod());
 
         assertThat(new MethodTextifier(outputFile).codeFor("callingTheMethodUsingLocalVariables"), equalTo(lines(
                 "LDC \"foo\"",
@@ -89,12 +77,8 @@ public class StaticMethodRemoverTest {
 
     @Test
     public void leavesMethodsWeWant() throws Exception {
-        StaticMethodRemover remover = new StaticMethodRemover(
-                CodeLocation.sourceFileFor(TestD.class),
-                outputFile
-        );
 
-        remover.remove(affirmMethod());
+        removeMethodCalls(TestD.class, affirmMethod());
 
         assertThat(new MethodTextifier(outputFile).codeFor("differentMethodsSomeWeWantSomeWeDont"), equalTo(lines(
                 "LDC \"foo\"",
@@ -106,12 +90,8 @@ public class StaticMethodRemoverTest {
 
     @Test
     public void leavesLocalVariableAnnotations() throws Exception {
-        StaticMethodRemover remover = new StaticMethodRemover(
-                CodeLocation.sourceFileFor(TestE.class),
-                outputFile
-        );
 
-        remover.remove(affirmMethod());
+        removeMethodCalls(TestE.class, affirmMethod());
 
         assertThat(new MethodTextifier(outputFile).codeFor("localVariableAnnotated"), equalTo(lines(
                 "NEW java/lang/String",
@@ -131,5 +111,19 @@ public class StaticMethodRemoverTest {
                         item.name.equals("affirmSomeCrap");
             }
         };
+    }
+
+    private void removeMethodCalls(Class<?> aClass, final Predicate<MethodSignature> predicate) throws IOException {
+        ClassAdapter adapter = new ClassAdapter(
+                CodeLocation.sourceFileFor(aClass),
+                outputFile
+        );
+
+        adapter.adaptWith(new ClassAdapter.AdapterChain() {
+            @Override
+            public ClassVisitor insertInto(ClassVisitor visitor) {
+                return new StaticMethodRemover(visitor, predicate);
+            }
+        });
     }
 }
