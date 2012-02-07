@@ -1,7 +1,6 @@
 package net.time4tea.asm.transform;
 
 import com.google.common.base.Predicate;
-import net.time4tea.CodeLocation;
 import net.time4tea.MethodSignature;
 import net.time4tea.MethodTextifier;
 import net.time4tea.asm.transform.testdata.TestA;
@@ -20,6 +19,7 @@ import org.objectweb.asm.ClassVisitor;
 
 import java.io.File;
 
+import static net.time4tea.CodeLocation.sourceFileFor;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -38,7 +38,7 @@ public class VoidMethodInvocationRemoverTest {
     @Test
     public void removesMethodWhenItIsTheOnlyThingInAMethod() throws Exception {
 
-        File input = CodeLocation.sourceFileFor(TestA.class);
+        File input = sourceFileFor(TestA.class);
         MethodTextifier processed = removeMethodCalls(input, affirmMethod("affirmSomeCrap"));
 
         assertThat(processed.codeFor("simpleMethodCallingVoidFunction"),
@@ -49,7 +49,7 @@ public class VoidMethodInvocationRemoverTest {
     @Test
     public void removesMethodWithCodeSurroundingIt() throws Exception {
 
-        File input = CodeLocation.sourceFileFor(TestB.class);
+        File input = sourceFileFor(TestB.class);
         MethodTextifier processed = removeMethodCalls(input, affirmMethod("affirmSomeCrap"));
 
         assertThat(processed.codeFor("simpleMethodWithSomeOtherCodeInIt"),
@@ -60,7 +60,7 @@ public class VoidMethodInvocationRemoverTest {
     @Test
     public void removesMethodUsingLocalVariables() throws Exception {
 
-        File input = CodeLocation.sourceFileFor(TestC.class);
+        File input = sourceFileFor(TestC.class);
         MethodTextifier processed = removeMethodCalls(input, affirmMethod("affirmSomeCrap"));
 
         assertThat(processed.codeFor("callingTheMethodUsingLocalVariables"),
@@ -71,7 +71,7 @@ public class VoidMethodInvocationRemoverTest {
     @Test
     public void leavesMethodsWeWant() throws Exception {
 
-        File input = CodeLocation.sourceFileFor(TestD.class);
+        File input = sourceFileFor(TestD.class);
         MethodTextifier processed = removeMethodCalls(input, affirmMethod("affirmSomeCrap"));
 
         assertThat(processed.codeFor("differentMethodsSomeWeWantSomeWeDont"),
@@ -82,7 +82,7 @@ public class VoidMethodInvocationRemoverTest {
     @Test
     public void leavesLocalVariableAnnotations() throws Exception {
 
-        File input = CodeLocation.sourceFileFor(TestE.class);
+        File input = sourceFileFor(TestE.class);
         MethodTextifier processed = removeMethodCalls(input, affirmMethod("affirmSomeCrap"));
 
         assertThat(processed.codeFor("localVariableAnnotated"),
@@ -92,14 +92,14 @@ public class VoidMethodInvocationRemoverTest {
 
     @Test(expected = AdapterException.class)
     public void refusesToRemoveAMethodThatIsNotVoid() throws Exception {
-        File input = CodeLocation.sourceFileFor(TestF.class);
+        File input = sourceFileFor(TestF.class);
         removeMethodCalls(input, affirmMethod("affirmSomeCrapReturnString"));
     }
 
     @Test
     public void removesMethodInTryCatchBlock() throws Exception {
 
-        File input = CodeLocation.sourceFileFor(TestG.class);
+        File input = sourceFileFor(TestG.class);
 
         MethodTextifier processed = removeMethodCalls(input, affirmMethod("affirmSomeCrap"));
 
@@ -111,7 +111,7 @@ public class VoidMethodInvocationRemoverTest {
     @Test
     public void removesVoidNonStaticInvocations() throws Exception {
 
-        File input = CodeLocation.sourceFileFor(TestH.class);
+        File input = sourceFileFor(TestH.class);
 
         MethodTextifier processed = removeMethodCalls(input, new Predicate<MethodSignature>() {
             @Override
