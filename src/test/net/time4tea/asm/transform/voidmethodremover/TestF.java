@@ -1,4 +1,4 @@
-package net.time4tea.asm.transform.testdata;
+package net.time4tea.asm.transform.voidmethodremover;
 
 import net.time4tea.Annotation;
 import net.time4tea.asm.transform.Affirm;
