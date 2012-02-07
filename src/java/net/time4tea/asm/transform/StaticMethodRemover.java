@@ -8,6 +8,7 @@ import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -178,9 +179,11 @@ public class StaticMethodRemover extends ClassVisitor {
         public void visitMethodInsn(final int opcode, final String owner, final String name, final String desc) {
             MethodSignature signature = new MethodSignature(owner, name, desc);
             if (predicate.apply(signature)) {
-                delayed.clear();
+                    assertAbleToRemove(signature);
+
+                    delayed.clear();
             } else {
-                delayed.add(new DescribableDelayed("method " , owner ,  name , desc) {
+                delayed.add(new DescribableDelayed("method ", owner, name, desc) {
                     @Override
                     public void donow() {
                         MyMethodVisitor.super.visitMethodInsn(opcode, owner, name, desc);
@@ -283,4 +286,13 @@ public class StaticMethodRemover extends ClassVisitor {
             delayed.clear();
         }
     }
+
+    private void assertAbleToRemove(MethodSignature signature) {
+        if (!signature.returnType().equals(Type.VOID_TYPE)) {
+            throw new AdapterRuntimeException(
+                    "Unable to remove a method with non void signature " + signature
+            );
+        }
+    }
+
 }

@@ -1,5 +1,7 @@
 package net.time4tea;
 
+import org.objectweb.asm.Type;
+
 public class MethodSignature {
 
     public final String owner;
@@ -19,5 +21,9 @@ public class MethodSignature {
                 ", name='" + name + '\'' +
                 ", desc='" + desc + '\'' +
                 '}';
+    }
+
+    public Type returnType() {
+        return Type.getReturnType(desc);
     }
 }

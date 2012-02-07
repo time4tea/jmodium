@@ -9,6 +9,7 @@ import net.time4tea.asm.transform.testdata.TestB;
 import net.time4tea.asm.transform.testdata.TestC;
 import net.time4tea.asm.transform.testdata.TestD;
 import net.time4tea.asm.transform.testdata.TestE;
+import net.time4tea.asm.transform.testdata.TestF;
 import org.hamcrest.MatcherAssert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -17,7 +18,6 @@ import org.junit.rules.TemporaryFolder;
 import org.objectweb.asm.ClassVisitor;
 
 import java.io.File;
-import java.io.IOException;
 
 import static net.time4tea.MethodTextifierTest.lines;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -38,7 +38,7 @@ public class StaticMethodRemoverTest {
     @Test
     public void removesMethodWhenItIsTheOnlyThingInAMethod() throws Exception {
 
-        removeMethodCalls(TestA.class, affirmMethod());
+        removeMethodCalls(TestA.class, affirmMethod("affirmSomeCrap"));
 
         MatcherAssert.assertThat(new MethodTextifier(outputFile).codeFor("simpleMethodCallingVoidFunction"), equalTo(lines(
                 "RETURN"
@@ -48,7 +48,7 @@ public class StaticMethodRemoverTest {
     @Test
     public void removesMethodWithCodeSurroundingIt() throws Exception {
         
-        removeMethodCalls(TestB.class, affirmMethod());
+        removeMethodCalls(TestB.class, affirmMethod("affirmSomeCrap"));
         
         assertThat(new MethodTextifier(outputFile).codeFor("simpleMethodWithSomeOtherCodeInIt"), equalTo(lines(
                 "NEW java/lang/String",
@@ -66,7 +66,7 @@ public class StaticMethodRemoverTest {
     @Test
     public void removesMethodUsingLocalVariables() throws Exception {
 
-        removeMethodCalls(TestC.class, affirmMethod());
+        removeMethodCalls(TestC.class, affirmMethod("affirmSomeCrap"));
 
         assertThat(new MethodTextifier(outputFile).codeFor("callingTheMethodUsingLocalVariables"), equalTo(lines(
                 "LDC \"foo\"",
@@ -78,7 +78,7 @@ public class StaticMethodRemoverTest {
     @Test
     public void leavesMethodsWeWant() throws Exception {
 
-        removeMethodCalls(TestD.class, affirmMethod());
+        removeMethodCalls(TestD.class, affirmMethod("affirmSomeCrap"));
 
         assertThat(new MethodTextifier(outputFile).codeFor("differentMethodsSomeWeWantSomeWeDont"), equalTo(lines(
                 "LDC \"foo\"",
@@ -91,7 +91,7 @@ public class StaticMethodRemoverTest {
     @Test
     public void leavesLocalVariableAnnotations() throws Exception {
 
-        removeMethodCalls(TestE.class, affirmMethod());
+        removeMethodCalls(TestE.class, affirmMethod("affirmSomeCrap"));
 
         assertThat(new MethodTextifier(outputFile).codeFor("localVariableAnnotated"), equalTo(lines(
                 "NEW java/lang/String",
@@ -102,24 +102,29 @@ public class StaticMethodRemoverTest {
         )));
     }
 
-    private Predicate<MethodSignature> affirmMethod() {
+    @Test(expected = AdapterException.class)
+    public void refusesToRemoveAMethodThatIsNotVoid() throws Exception {
+        removeMethodCalls(TestF.class, affirmMethod("affirmSomeCrapReturnString"));
+    }
+
+    private Predicate<MethodSignature> affirmMethod(final String method) {
         return new Predicate<MethodSignature>() {
             @Override
             public boolean apply(MethodSignature item) {
                 String classId = Affirm.class.getName().replaceAll("\\.", "/");
                 return item.owner.equals(classId) &&
-                        item.name.equals("affirmSomeCrap");
+                        item.name.equals(method);
             }
         };
     }
 
-    private void removeMethodCalls(Class<?> aClass, final Predicate<MethodSignature> predicate) throws IOException {
+    private void removeMethodCalls(Class<?> aClass, final Predicate<MethodSignature> predicate) throws Exception {
         ClassAdapter adapter = new ClassAdapter(
                 CodeLocation.sourceFileFor(aClass),
                 outputFile
         );
 
-        adapter.adaptWith(new ClassAdapter.AdapterChain() {
+        adapter.adaptWith(new AdapterChain() {
             @Override
             public ClassVisitor insertInto(ClassVisitor visitor) {
                 return new StaticMethodRemover(visitor, predicate);

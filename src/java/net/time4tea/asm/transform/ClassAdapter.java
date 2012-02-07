@@ -1,7 +1,6 @@
 package net.time4tea.asm.transform;
 
 import net.time4tea.AsmReader;
-import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.util.CheckClassAdapter;
 
@@ -21,21 +20,22 @@ public class ClassAdapter {
         this.parent = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
     }
 
-    public void adaptWith(AdapterChain adapterChain) throws IOException {
+    public void adaptWith(AdapterChain adapterChain) throws IOException, AdapterException {
         CheckClassAdapter adapter = new CheckClassAdapter(parent);
-        new AsmReader(input, 0).readWith(
-                adapterChain.insertInto(adapter)
-        );
-        byte[] bytes = parent.toByteArray();
-        FileOutputStream stream = new FileOutputStream(output);
         try {
-            stream.write(bytes);
-        } finally {
-            stream.close();
+            new AsmReader(input, 0).readWith(
+                    adapterChain.insertInto(adapter)
+            );
+            byte[] bytes = parent.toByteArray();
+            FileOutputStream stream = new FileOutputStream(output);
+            try {
+                stream.write(bytes);
+            } finally {
+                stream.close();
+            }
+        } catch (AdapterRuntimeException e) {
+            throw e.cause();
         }
     }
 
-    public interface AdapterChain {
-        ClassVisitor insertInto(ClassVisitor visitor);
-    }
 }
