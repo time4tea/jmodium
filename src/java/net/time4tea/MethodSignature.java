@@ -26,4 +26,8 @@ public class MethodSignature {
     public Type returnType() {
         return Type.getReturnType(desc);
     }
+    
+    public String className() {
+        return owner.replaceAll("/", ".");
+    }
 }

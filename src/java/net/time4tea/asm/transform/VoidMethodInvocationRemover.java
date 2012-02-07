@@ -14,11 +14,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class StaticMethodRemover extends ClassVisitor {
+public class VoidMethodInvocationRemover extends ClassVisitor {
 
     private final Predicate<MethodSignature> predicate;
 
-    public StaticMethodRemover(ClassVisitor parent, Predicate<MethodSignature> predicate) {
+    public VoidMethodInvocationRemover(ClassVisitor parent, Predicate<MethodSignature> predicate) {
         super(Opcodes.ASM4, parent);
         this.predicate = predicate;
     }
@@ -133,7 +133,6 @@ public class StaticMethodRemover extends ClassVisitor {
                     MyMethodVisitor.super.visitInsn(opcode);
                 }
             });
-
         }
 
         @Override

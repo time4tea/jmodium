@@ -11,7 +11,9 @@ import net.time4tea.asm.transform.testdata.TestD;
 import net.time4tea.asm.transform.testdata.TestE;
 import net.time4tea.asm.transform.testdata.TestF;
 import net.time4tea.asm.transform.testdata.TestG;
+import net.time4tea.asm.transform.testdata.TestH;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -22,7 +24,7 @@ import java.io.File;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-public class StaticMethodRemoverTest {
+public class VoidMethodInvocationRemoverTest {
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
@@ -107,12 +109,29 @@ public class StaticMethodRemoverTest {
         );
     }
 
+    @Ignore
+     @Test
+    public void removesVoidNonStaticInvocations() throws Exception {
+
+        File input = CodeLocation.sourceFileFor(TestH.class);
+
+        MethodTextifier processed = removeMethodCalls(input, new Predicate<MethodSignature>() {
+            @Override
+            public boolean apply(MethodSignature methodSignature) {
+                return methodSignature.className().equals(TestH.Logger.class.getName());
+            }
+        });
+
+        assertThat(processed.codeFor("nonStaticInvocation"),
+                equalTo(new MethodTextifier(input).codeFor("nonStaticInvocationExpectedResult"))
+        );
+    }
+
     private Predicate<MethodSignature> affirmMethod(final String method) {
         return new Predicate<MethodSignature>() {
             @Override
             public boolean apply(MethodSignature item) {
-                String classId = Affirm.class.getName().replaceAll("\\.", "/");
-                return item.owner.equals(classId) &&
+                return item.className().equals(Affirm.class.getName()) &&
                         item.name.equals(method);
             }
         };
@@ -124,7 +143,7 @@ public class StaticMethodRemoverTest {
         adapter.adaptWith(new AdapterChain() {
             @Override
             public ClassVisitor insertInto(ClassVisitor visitor) {
-                return new StaticMethodRemover(visitor, predicate);
+                return new VoidMethodInvocationRemover(visitor, predicate);
             }
         });
 
