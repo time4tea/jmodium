@@ -8,6 +8,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.util.Textifier;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -21,7 +22,11 @@ public class MethodTextifier {
 
     public MethodTextifier(File f) {
         file = f;
-        reader = new AsmReader(file, ClassReader.SKIP_DEBUG);
+        try {
+            reader = new AsmReader(file, ClassReader.SKIP_DEBUG);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException("crappy hack",e);
+        }
     }
 
     public String codeFor(String method) throws IOException {
