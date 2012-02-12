@@ -1,8 +1,8 @@
 package net.time4tea.asm.transform.jar;
 
-import net.time4tea.asm.transform.AdapterChain;
-import net.time4tea.asm.transform.AdapterException;
-import net.time4tea.asm.transform.ClassAdapter;
+import net.time4tea.asm.transform.adapter.AdapterChain;
+import net.time4tea.asm.transform.adapter.AdapterException;
+import net.time4tea.asm.transform.adapter.ClassAdapter;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

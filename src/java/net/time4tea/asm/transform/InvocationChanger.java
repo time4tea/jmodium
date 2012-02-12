@@ -2,6 +2,7 @@ package net.time4tea.asm.transform;
 
 import com.google.common.base.Predicate;
 import net.time4tea.AccessibleSignature;
+import net.time4tea.asm.transform.adapter.BytecodeLocation;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;

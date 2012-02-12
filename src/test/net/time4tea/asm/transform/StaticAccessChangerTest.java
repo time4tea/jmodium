@@ -4,6 +4,8 @@ import com.google.common.base.Predicate;
 import net.time4tea.AccessibleSignature;
 import net.time4tea.CodeLocation;
 import net.time4tea.MethodTextifier;
+import net.time4tea.asm.transform.adapter.AdapterChain;
+import net.time4tea.asm.transform.adapter.ClassAdapter;
 import net.time4tea.asm.transform.staticaccesschanger.TestA;
 import org.junit.Before;
 import org.junit.Rule;

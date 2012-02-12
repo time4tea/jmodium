@@ -1,4 +1,4 @@
-package net.time4tea.asm.transform;
+package net.time4tea.asm.transform.adapter;
 
 import org.objectweb.asm.ClassVisitor;
 

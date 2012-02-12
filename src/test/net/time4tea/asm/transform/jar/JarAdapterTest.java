@@ -1,6 +1,6 @@
 package net.time4tea.asm.transform.jar;
 
-import net.time4tea.asm.transform.AdapterChain;
+import net.time4tea.asm.transform.adapter.AdapterChain;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;

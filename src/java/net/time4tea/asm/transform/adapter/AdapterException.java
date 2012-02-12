@@ -1,4 +1,4 @@
-package net.time4tea.asm.transform;
+package net.time4tea.asm.transform.adapter;
 
 public class AdapterException extends Exception {
     public AdapterException(String message) {
