@@ -1,7 +1,5 @@
 package net.time4tea.asm.transform;
 
-import net.time4tea.MemberSignature;
-
 import java.lang.reflect.Field;
 
 public class ClassFieldSelector implements ReplacementSelector {

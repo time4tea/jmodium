@@ -1,5 +1,6 @@
 package net.time4tea;
 
+import net.time4tea.asm.transform.trace.MethodTextifier;
 import org.junit.Test;
 
 import java.io.File;

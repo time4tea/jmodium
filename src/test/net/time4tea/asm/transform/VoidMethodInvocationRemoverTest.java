@@ -1,8 +1,7 @@
 package net.time4tea.asm.transform;
 
 import com.google.common.base.Predicate;
-import net.time4tea.MemberSignature;
-import net.time4tea.MethodTextifier;
+import net.time4tea.asm.transform.trace.MethodTextifier;
 import net.time4tea.asm.transform.adapter.AdapterChain;
 import net.time4tea.asm.transform.adapter.AdapterException;
 import net.time4tea.asm.transform.adapter.ClassAdapter;

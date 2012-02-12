@@ -1,7 +1,5 @@
 package net.time4tea.asm.transform;
 
-import net.time4tea.MemberSignature;
-
 public class SameMethodDifferentClassSelector implements ReplacementSelector {
     private final Class<?> classToInvoke;
 

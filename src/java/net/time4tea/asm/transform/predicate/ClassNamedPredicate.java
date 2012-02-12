@@ -1,7 +1,7 @@
 package net.time4tea.asm.transform.predicate;
 
 import com.google.common.base.Predicate;
-import net.time4tea.MemberSignature;
+import net.time4tea.asm.transform.MemberSignature;
 
 import static com.google.common.base.Predicates.equalTo;
 

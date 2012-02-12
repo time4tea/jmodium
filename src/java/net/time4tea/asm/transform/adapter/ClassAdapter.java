@@ -1,9 +1,6 @@
 package net.time4tea.asm.transform.adapter;
 
-import net.time4tea.AsmReader;
-import net.time4tea.asm.transform.adapter.AdapterChain;
-import net.time4tea.asm.transform.adapter.AdapterException;
-import net.time4tea.asm.transform.adapter.AdapterRuntimeException;
+import net.time4tea.asm.transform.AsmReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.util.CheckClassAdapter;
 
