@@ -38,7 +38,7 @@ public class InvocationChangerTest {
             public boolean apply(MethodSignature methodSignature) {
                 return methodSignature.className().equals(TestA.OriginalLogger.class.getName());
             }
-        }, new DiagnosticsAddingInvocationMangler(TestA.DiagnosticLogger.class));
+        }, new DiagnosticsAddingInvocationMangler(new SameMethodDifferentClassSelector(TestA.DiagnosticLogger.class)));
 
         assertThat(result.codeFor("aBuggyMethod"),
                 equalTo(new MethodTextifier(input).codeFor("aBuggyMethodExpectedResult"))

@@ -8,8 +8,8 @@ public class DiagnosticsAddingInvocationMangler implements InvocationMangler {
 
     private final ReplacementMethodSelector selector;
 
-    public DiagnosticsAddingInvocationMangler(final Class<?> classToInvoke) {
-        this.selector = new SameMethodDifferentClassSelector(classToInvoke);
+    public DiagnosticsAddingInvocationMangler(ReplacementMethodSelector replacement) {
+        this.selector = replacement;
     }
 
     @Override
