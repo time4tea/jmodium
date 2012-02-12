@@ -18,7 +18,7 @@ public class StraightSwapMangler implements Mangler {
         visitor.visitFieldInsn(
                 opcode,
                 replacement.internalClassName(),
-                replacement.methodName(),
+                replacement.name(),
                 replacement.descriptor()
         );
     }

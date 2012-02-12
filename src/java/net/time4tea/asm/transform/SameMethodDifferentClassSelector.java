@@ -13,7 +13,7 @@ public class SameMethodDifferentClassSelector implements ReplacementSelector {
     public AccessibleSignature replacementFor(AccessibleSignature existingSignature) {
         return new AccessibleSignature(
                 classToInvoke,
-                existingSignature.methodName(),
+                existingSignature.name(),
                 "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V"
         );
     }

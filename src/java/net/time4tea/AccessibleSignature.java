@@ -43,7 +43,7 @@ public class AccessibleSignature {
         return owner;
     }
 
-    public String methodName() {
+    public String name() {
         return name;
     }
 }

@@ -37,7 +37,7 @@ public class StaticAccessChangerTest {
             @Override
             public boolean apply(AccessibleSignature methodSignature) {
                 return methodSignature.className().equals("java.lang.System") &&
-                        methodSignature.methodName().equals("out");
+                        methodSignature.name().equals("out");
             }
         }, new StraightSwapMangler(new ClassFieldSelector(TestA.Bob.class.getField("stream"))));
 

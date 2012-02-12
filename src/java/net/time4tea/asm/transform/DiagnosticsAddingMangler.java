@@ -23,7 +23,7 @@ public class DiagnosticsAddingMangler implements Mangler {
         visitor.visitMethodInsn(
                 opcode,
                 replacement.internalClassName(),
-                replacement.methodName(),
+                replacement.name(),
                 replacement.descriptor()
         );
     }
