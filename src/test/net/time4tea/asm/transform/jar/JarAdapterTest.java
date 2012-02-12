@@ -13,12 +13,9 @@ public class JarAdapterTest {
     @Rule
     public TemporaryFolder temp = new TemporaryFolder();
     
-    
     @Test
     public void foo() throws Exception {
-
         JarAdapter adapter = new JarAdapter(new File("lib/jmock-2.5.1.jar"), temp.newFile(), new NoChanges());
-        
         adapter.adapt();
     }
 

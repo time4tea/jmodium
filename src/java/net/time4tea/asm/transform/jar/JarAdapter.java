@@ -16,7 +16,6 @@ import java.util.jar.JarOutputStream;
 
 public class JarAdapter {
 
-
     private File input;
     private File output;
     private AdapterChain adapter;
@@ -32,25 +31,29 @@ public class JarAdapter {
         JarInputStream inJar = new JarInputStream(new FileInputStream(input));
         JarOutputStream outJar = new JarOutputStream(new FileOutputStream(output),inJar.getManifest());
 
-        JarEntry entry;
-        
-        while ((entry = inJar.getNextJarEntry()) != null) {
 
-            int size = (int) entry.getSize();
-            byte[] bytes= new byte[size];
-            inJar.read(bytes);
+        try {
+            JarEntry entry;
+            while ((entry = inJar.getNextJarEntry()) != null) {
 
-            if ( isCode(entry)) {
-                ByteArrayOutputStream adapted = new ByteArrayOutputStream(size);
-                new ClassAdapter(new ByteArrayInputStream(bytes), adapted).adaptWith(adapter);
-                outJar.putNextEntry(new JarEntry(entry.getName()));
-                outJar.write(adapted.toByteArray());
+                int size = (int) entry.getSize();
+                byte[] bytes= new byte[size];
+                inJar.read(bytes);
+    
+                if ( isCode(entry)) {
+                    ByteArrayOutputStream adapted = new ByteArrayOutputStream(size);
+                    new ClassAdapter(new ByteArrayInputStream(bytes), adapted).adaptWith(adapter);
+                    outJar.putNextEntry(new JarEntry(entry.getName()));
+                    outJar.write(adapted.toByteArray());
+                }
+                else {
+                    outJar.putNextEntry(entry);
+                    outJar.write(bytes);
+                }
             }
-            else {
-                outJar.putNextEntry(entry);
-                outJar.write(bytes);
-            }
-            System.out.println("entry = " + entry);
+        } finally {
+            inJar.close();
+            outJar.close();
         }
     }
 
