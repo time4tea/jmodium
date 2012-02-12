@@ -6,7 +6,6 @@ import net.time4tea.MethodSignature;
 import net.time4tea.MethodTextifier;
 import net.time4tea.asm.transform.debuginformationadder.TestA;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -31,7 +30,6 @@ public class DebugInformationAdderTest {
         outputFile = folder.newFile();
     }
 
-    @Ignore
     @Test
     public void addsLineNumberInformationToSpecifiedMethod() throws Exception {
 
@@ -64,9 +62,7 @@ public class DebugInformationAdderTest {
         return new MethodTextifier(outputFile);
     }
     
-    
-    
-    
+
     @Test
     public void wtf() throws Exception {
 

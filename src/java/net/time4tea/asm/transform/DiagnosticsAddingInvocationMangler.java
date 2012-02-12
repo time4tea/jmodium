@@ -18,11 +18,11 @@ public class DiagnosticsAddingInvocationMangler implements InvocationMangler {
     public void changeInvocation(MethodVisitor visitor, MethodSignature invocation, BytecodeLocation location) {
         visitor.visitLdcInsn(location.className());
         visitor.visitLdcInsn(location.methodName());
-        visitor.visitLdcInsn(location.lineNumber());
+        visitor.visitIntInsn(Opcodes.SIPUSH, location.lineNumber());
         visitor.visitMethodInsn(
                 Opcodes.INVOKESTATIC,
                 classToInvokeInternalName,
-                invocation.methodName(), "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)"
+                invocation.methodName(), "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V"
         );
     }
 }
