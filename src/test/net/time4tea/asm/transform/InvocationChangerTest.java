@@ -1,7 +1,7 @@
 package net.time4tea.asm.transform;
 
 import com.google.common.base.Predicate;
-import net.time4tea.AccessibleSignature;
+import net.time4tea.MemberSignature;
 import net.time4tea.CodeLocation;
 import net.time4tea.MethodTextifier;
 import net.time4tea.asm.transform.adapter.AdapterChain;
@@ -35,9 +35,9 @@ public class InvocationChangerTest {
 
         File input = CodeLocation.sourceFileFor(TestA.class);
 
-        MethodTextifier result = adaptMethodCalls(input, new Predicate<AccessibleSignature>() {
+        MethodTextifier result = adaptMethodCalls(input, new Predicate<MemberSignature>() {
             @Override
-            public boolean apply(AccessibleSignature methodSignature) {
+            public boolean apply(MemberSignature methodSignature) {
                 return methodSignature.className().equals(TestA.OriginalLogger.class.getName());
             }
         }, new DiagnosticsAddingMangler(new SameMethodDifferentClassSelector(TestA.DiagnosticLogger.class)));
@@ -48,7 +48,7 @@ public class InvocationChangerTest {
     }
 
     private MethodTextifier adaptMethodCalls(File input,
-                                             final Predicate<AccessibleSignature> predicate,
+                                             final Predicate<MemberSignature> predicate,
                                              final Mangler mangler) throws Exception {
         ClassAdapter adapter = new ClassAdapter(input, outputFile);
 

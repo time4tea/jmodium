@@ -1,6 +1,6 @@
 package net.time4tea.asm.transform;
 
-import net.time4tea.AccessibleSignature;
+import net.time4tea.MemberSignature;
 
 import java.lang.reflect.Field;
 
@@ -13,8 +13,8 @@ public class ClassFieldSelector implements ReplacementSelector {
     }
 
     @Override
-    public AccessibleSignature replacementFor(AccessibleSignature existingSignature) {
-        return new AccessibleSignature(
+    public MemberSignature replacementFor(MemberSignature existingSignature) {
+        return new MemberSignature(
                 field.getDeclaringClass(),
                 field.getName(),
                 existingSignature.descriptor()

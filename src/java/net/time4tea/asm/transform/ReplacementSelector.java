@@ -1,7 +1,7 @@
 package net.time4tea.asm.transform;
 
-import net.time4tea.AccessibleSignature;
+import net.time4tea.MemberSignature;
 
 public interface ReplacementSelector {
-    AccessibleSignature replacementFor(AccessibleSignature existingSignature);
+    MemberSignature replacementFor(MemberSignature existingSignature);
 }

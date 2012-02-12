@@ -2,17 +2,17 @@ package net.time4tea;
 
 import org.objectweb.asm.Type;
 
-public class AccessibleSignature {
+public class MemberSignature {
 
     private final String owner;
     private final String name;
     private final String desc;
 
-    public AccessibleSignature(Class<?> owner, String name, String desc) {
+    public MemberSignature(Class<?> owner, String name, String desc) {
         this(owner.getName().replaceAll("\\.", "/"), name, desc);
     }
     
-    public AccessibleSignature(String owner, String name, String desc) {
+    public MemberSignature(String owner, String name, String desc) {
         this.owner = owner;
         this.name = name;
         this.desc = desc;
@@ -20,7 +20,7 @@ public class AccessibleSignature {
 
     @Override
     public String toString() {
-        return "AccessibleSignature{" +
+        return "MemberSignature{" +
                 "owner='" + owner + '\'' +
                 ", name='" + name + '\'' +
                 ", desc='" + desc + '\'' +

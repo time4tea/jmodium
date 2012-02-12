@@ -1,6 +1,6 @@
 package net.time4tea.asm.transform;
 
-import net.time4tea.AccessibleSignature;
+import net.time4tea.MemberSignature;
 
 public class SameMethodDifferentClassSelector implements ReplacementSelector {
     private final Class<?> classToInvoke;
@@ -10,8 +10,8 @@ public class SameMethodDifferentClassSelector implements ReplacementSelector {
     }
 
     @Override
-    public AccessibleSignature replacementFor(AccessibleSignature existingSignature) {
-        return new AccessibleSignature(
+    public MemberSignature replacementFor(MemberSignature existingSignature) {
+        return new MemberSignature(
                 classToInvoke,
                 existingSignature.name(),
                 "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V"

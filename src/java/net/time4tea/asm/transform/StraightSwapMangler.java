@@ -1,6 +1,6 @@
 package net.time4tea.asm.transform;
 
-import net.time4tea.AccessibleSignature;
+import net.time4tea.MemberSignature;
 import net.time4tea.asm.transform.adapter.BytecodeLocation;
 import org.objectweb.asm.MethodVisitor;
 
@@ -13,8 +13,8 @@ public class StraightSwapMangler implements Mangler {
     }
 
     @Override
-    public void changeInvocation(int opcode, MethodVisitor visitor, AccessibleSignature invocation, BytecodeLocation location) {
-        AccessibleSignature replacement = selector.replacementFor(invocation);
+    public void changeInvocation(int opcode, MethodVisitor visitor, MemberSignature invocation, BytecodeLocation location) {
+        MemberSignature replacement = selector.replacementFor(invocation);
 
         visitor.visitFieldInsn(
                 opcode,

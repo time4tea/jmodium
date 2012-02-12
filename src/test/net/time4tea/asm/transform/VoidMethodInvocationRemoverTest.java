@@ -1,7 +1,7 @@
 package net.time4tea.asm.transform;
 
 import com.google.common.base.Predicate;
-import net.time4tea.AccessibleSignature;
+import net.time4tea.MemberSignature;
 import net.time4tea.MethodTextifier;
 import net.time4tea.asm.transform.adapter.AdapterChain;
 import net.time4tea.asm.transform.adapter.AdapterException;
@@ -116,9 +116,9 @@ public class VoidMethodInvocationRemoverTest {
 
         File input = sourceFileFor(TestH.class);
 
-        MethodTextifier processed = removeMethodCalls(input, new Predicate<AccessibleSignature>() {
+        MethodTextifier processed = removeMethodCalls(input, new Predicate<MemberSignature>() {
             @Override
-            public boolean apply(AccessibleSignature methodSignature) {
+            public boolean apply(MemberSignature methodSignature) {
                 return methodSignature.className().equals(TestH.Logger.class.getName())
                         && methodSignature.name().equals("error");
             }
@@ -129,17 +129,17 @@ public class VoidMethodInvocationRemoverTest {
         );
     }
 
-    private Predicate<AccessibleSignature> affirmMethod(final String method) {
-        return new Predicate<AccessibleSignature>() {
+    private Predicate<MemberSignature> affirmMethod(final String method) {
+        return new Predicate<MemberSignature>() {
             @Override
-            public boolean apply(AccessibleSignature item) {
+            public boolean apply(MemberSignature item) {
                 return item.className().equals(Affirm.class.getName()) &&
                         item.name().equals(method);
             }
         };
     }
 
-    private MethodTextifier removeMethodCalls(File input, final Predicate<AccessibleSignature> predicate) throws Exception {
+    private MethodTextifier removeMethodCalls(File input, final Predicate<MemberSignature> predicate) throws Exception {
         ClassAdapter adapter = new ClassAdapter(input, outputFile);
 
         adapter.adaptWith(new AdapterChain() {

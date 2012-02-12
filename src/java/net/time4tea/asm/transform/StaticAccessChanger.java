@@ -1,18 +1,18 @@
 package net.time4tea.asm.transform;
 
 import com.google.common.base.Predicate;
-import net.time4tea.AccessibleSignature;
+import net.time4tea.MemberSignature;
 import net.time4tea.asm.transform.adapter.BytecodeLocation;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 public class StaticAccessChanger extends ClassVisitor {
-    private Predicate<AccessibleSignature> fieldsToChange;
+    private Predicate<? super MemberSignature> fieldsToChange;
     private Mangler mangler;
 
     public StaticAccessChanger(ClassVisitor visitor,
-                               Predicate<AccessibleSignature> fieldsToChange,
+                               Predicate<? super MemberSignature> fieldsToChange,
                                Mangler mangler) {
         super(Opcodes.ASM4, visitor);
         this.fieldsToChange = fieldsToChange;
@@ -32,30 +32,32 @@ public class StaticAccessChanger extends ClassVisitor {
             @Override
             public void visitFieldInsn(int opcode, String owner, String name, String desc) {
 
-                AccessibleSignature accessibleSignature = new AccessibleSignature(owner, name, desc);
+                MemberSignature memberSignature = new MemberSignature(owner, name, desc);
 
-                if ( fieldsToChange.apply(accessibleSignature)) {
-                    mangler.changeInvocation(opcode, this, accessibleSignature, new BytecodeLocation() {
-                        @Override
-                        public String className() {
-                            throw new UnsupportedOperationException("james didn't write");
-                        }
-
-                        @Override
-                        public String methodName() {
-                            throw new UnsupportedOperationException("james didn't write");
-                        }
-
-                        @Override
-                        public int lineNumber() {
-                            throw new UnsupportedOperationException("james didn't write");
-                        }
-                    });
+                if ( fieldsToChange.apply(memberSignature)) {
+                    mangler.changeInvocation(opcode, this, memberSignature, new NotImplementedLocation());
                 }
                 else {
                     super.visitFieldInsn(opcode, owner, name, desc);
                 }
             }
         };
+    }
+
+    private static class NotImplementedLocation implements BytecodeLocation {
+        @Override
+        public String className() {
+            throw new UnsupportedOperationException("james didn't write");
+        }
+
+        @Override
+        public String methodName() {
+            throw new UnsupportedOperationException("james didn't write");
+        }
+
+        @Override
+        public int lineNumber() {
+            throw new UnsupportedOperationException("james didn't write");
+        }
     }
 }

@@ -1,8 +1,9 @@
 package net.time4tea.asm.transform;
 
 import com.google.common.base.Predicate;
-import net.time4tea.AccessibleSignature;
+import com.google.common.base.Predicates;
 import net.time4tea.CodeLocation;
+import net.time4tea.MemberSignature;
 import net.time4tea.MethodTextifier;
 import net.time4tea.asm.transform.adapter.AdapterChain;
 import net.time4tea.asm.transform.adapter.ClassAdapter;
@@ -15,6 +16,8 @@ import org.objectweb.asm.ClassVisitor;
 
 import java.io.File;
 
+import static net.time4tea.asm.transform.predicate.ClassMemberNamedPredicate.fieldNamed;
+import static net.time4tea.asm.transform.predicate.ClassNamedPredicate.classIs;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -35,13 +38,10 @@ public class StaticAccessChangerTest {
 
         File input = CodeLocation.sourceFileFor(TestA.class);
 
-        MethodTextifier result = adaptStaticAccess(input, new Predicate<AccessibleSignature>() {
-            @Override
-            public boolean apply(AccessibleSignature methodSignature) {
-                return methodSignature.className().equals("java.lang.System") &&
-                        methodSignature.name().equals("out");
-            }
-        }, new StraightSwapMangler(new ClassFieldSelector(TestA.Bob.class.getField("stream"))));
+        MethodTextifier result = adaptStaticAccess(
+                input,
+                Predicates.and(classIs(System.class), fieldNamed("out")),
+                new StraightSwapMangler(new ClassFieldSelector(TestA.Bob.class.getField("stream"))));
 
         assertThat(result.codeFor("printer"),
                 equalTo(new MethodTextifier(input).codeFor("printerExpectedResult"))
@@ -49,7 +49,7 @@ public class StaticAccessChangerTest {
     }
 
     private MethodTextifier adaptStaticAccess(File input,
-                                              final Predicate<AccessibleSignature> predicate,
+                                              final Predicate<? super MemberSignature> predicate,
                                               final Mangler mangler) throws Exception {
         ClassAdapter adapter = new ClassAdapter(input, outputFile);
 

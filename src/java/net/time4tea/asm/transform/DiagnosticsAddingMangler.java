@@ -1,6 +1,6 @@
 package net.time4tea.asm.transform;
 
-import net.time4tea.AccessibleSignature;
+import net.time4tea.MemberSignature;
 import net.time4tea.asm.transform.adapter.BytecodeLocation;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -14,12 +14,12 @@ public class DiagnosticsAddingMangler implements Mangler {
     }
 
     @Override
-    public void changeInvocation(int opcode, MethodVisitor visitor, AccessibleSignature invocation, BytecodeLocation location) {
+    public void changeInvocation(int opcode, MethodVisitor visitor, MemberSignature invocation, BytecodeLocation location) {
         visitor.visitLdcInsn(location.className());
         visitor.visitLdcInsn(location.methodName());
         visitor.visitIntInsn(Opcodes.SIPUSH, location.lineNumber());
 
-        AccessibleSignature replacement = selector.replacementFor(invocation);
+        MemberSignature replacement = selector.replacementFor(invocation);
 
         visitor.visitMethodInsn(
                 opcode,
