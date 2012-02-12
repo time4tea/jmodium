@@ -10,6 +10,7 @@ Why would I remove method calls?
 Let's say you want to write some software, but then strip out all or some of the debugging or assertions before
 shipping the production version, either to reduce class size or reduce execution overhead.
 
+You may wish to remove System.out calls or logging from a library that you don't have the source code for.
 
 What about adding location information?
 ======================================
@@ -26,4 +27,7 @@ Not much - whatever your platform runs on. The transformed classes will run on t
 The file processor runs on your build system, so the runtime cost of the transformations is zero. Of course you could
 plug this transformer in as part of the Java Instrumentation API - See http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/instrument/ClassFileTransformer.html
 
+Got a JAR file or some decent docs, or even a build?
+------------------------------------
 
+Nope, not yet.
