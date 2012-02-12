@@ -35,6 +35,10 @@ public class MethodSignature {
         return owner.replaceAll("/", ".");
     }
 
+    public String internalClassName() {
+        return owner;
+    }
+
     public String methodName() {
         return name;
     }

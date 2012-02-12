@@ -10,15 +10,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.util.TraceClassVisitor;
 
 import java.io.File;
-import java.io.PrintWriter;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-public class DebugInformationAdderTest {
+public class InvocationChangerTest {
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
@@ -55,25 +53,10 @@ public class DebugInformationAdderTest {
         adapter.adaptWith(new AdapterChain() {
             @Override
             public ClassVisitor insertInto(ClassVisitor visitor) {
-                return new DebugInformationAdder(visitor, predicate, diagnosticsAddingInvocationMangler);
+                return new InvocationChanger(visitor, predicate, diagnosticsAddingInvocationMangler);
             }
         });
 
         return new MethodTextifier(outputFile);
-    }
-    
-
-    @Test
-    public void wtf() throws Exception {
-
-        File input = CodeLocation.sourceFileFor(TestA.DiagnosticLogger.class);
-        ClassAdapter adapter = new ClassAdapter(input, outputFile);
-        
-        adapter.adaptWith(new AdapterChain() {
-            @Override
-            public ClassVisitor insertInto(ClassVisitor visitor) {
-                return new TraceClassVisitor(visitor, new PrintWriter(System.out));
-            }
-        });
     }
 }

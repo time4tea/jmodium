@@ -7,15 +7,15 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class DebugInformationAdder extends ClassVisitor {
+public class InvocationChanger extends ClassVisitor {
     private Predicate<MethodSignature> methodsToChange;
     private InvocationMangler mangler;
     private MutableBytecodeLocation location;
 
 
-    public DebugInformationAdder(ClassVisitor visitor, 
-                                 Predicate<MethodSignature> methodsToChange, 
-                                 InvocationMangler mangler) {
+    public InvocationChanger(ClassVisitor visitor,
+                             Predicate<MethodSignature> methodsToChange,
+                             InvocationMangler mangler) {
         super(Opcodes.ASM4, visitor);
         this.methodsToChange = methodsToChange;
         this.mangler = mangler;

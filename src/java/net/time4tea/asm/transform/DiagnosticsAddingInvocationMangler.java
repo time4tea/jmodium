@@ -6,12 +6,10 @@ import org.objectweb.asm.Opcodes;
 
 public class DiagnosticsAddingInvocationMangler implements InvocationMangler {
 
-    private final String classToInvokeInternalName;
-    private final Class<?> classToInvoke;
+    private final ReplacementMethodSelector selector;
 
-    public DiagnosticsAddingInvocationMangler(Class<?> classToInvoke) {
-        this.classToInvoke = classToInvoke;
-        this.classToInvokeInternalName = classToInvoke.getName().replaceAll("\\.", "/");
+    public DiagnosticsAddingInvocationMangler(final Class<?> classToInvoke) {
+        this.selector = new SameMethodDifferentClassSelector(classToInvoke);
     }
 
     @Override
@@ -19,10 +17,14 @@ public class DiagnosticsAddingInvocationMangler implements InvocationMangler {
         visitor.visitLdcInsn(location.className());
         visitor.visitLdcInsn(location.methodName());
         visitor.visitIntInsn(Opcodes.SIPUSH, location.lineNumber());
+
+        MethodSignature replacement = selector.replacementFor(invocation);
+
         visitor.visitMethodInsn(
                 Opcodes.INVOKESTATIC,
-                classToInvokeInternalName,
-                invocation.methodName(), "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V"
+                replacement.internalClassName(),
+                replacement.methodName(),
+                replacement.descriptor()
         );
     }
 }
