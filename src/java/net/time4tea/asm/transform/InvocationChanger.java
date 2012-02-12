@@ -1,21 +1,20 @@
 package net.time4tea.asm.transform;
 
 import com.google.common.base.Predicate;
-import net.time4tea.MethodSignature;
+import net.time4tea.AccessibleSignature;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 public class InvocationChanger extends ClassVisitor {
-    private Predicate<MethodSignature> methodsToChange;
-    private InvocationMangler mangler;
+    private Predicate<AccessibleSignature> methodsToChange;
+    private Mangler mangler;
     private MutableBytecodeLocation location;
 
-
     public InvocationChanger(ClassVisitor visitor,
-                             Predicate<MethodSignature> methodsToChange,
-                             InvocationMangler mangler) {
+                             Predicate<AccessibleSignature> methodsToChange,
+                             Mangler mangler) {
         super(Opcodes.ASM4, visitor);
         this.methodsToChange = methodsToChange;
         this.mangler = mangler;
@@ -63,9 +62,9 @@ public class InvocationChanger extends ClassVisitor {
 
             @Override
             public void visitMethodInsn(int opcode, String owner, String name, String desc) {
-                MethodSignature methodSignature = new MethodSignature(owner, name, desc);
-                if ( methodsToChange.apply(methodSignature)) {
-                    mangler.changeInvocation(this, methodSignature, location );
+                AccessibleSignature accessibleSignature = new AccessibleSignature(owner, name, desc);
+                if ( methodsToChange.apply(accessibleSignature)) {
+                    mangler.changeInvocation(opcode, this, accessibleSignature, location);
                 }
                 else {
                     super.visitMethodInsn(opcode, owner, name, desc);

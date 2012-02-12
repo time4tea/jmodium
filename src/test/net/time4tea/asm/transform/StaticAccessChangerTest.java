@@ -4,7 +4,7 @@ import com.google.common.base.Predicate;
 import net.time4tea.AccessibleSignature;
 import net.time4tea.CodeLocation;
 import net.time4tea.MethodTextifier;
-import net.time4tea.asm.transform.debuginformationadder.TestA;
+import net.time4tea.asm.transform.staticaccesschanger.TestA;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -16,7 +16,7 @@ import java.io.File;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-public class InvocationChangerTest {
+public class StaticAccessChangerTest {
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
@@ -33,27 +33,28 @@ public class InvocationChangerTest {
 
         File input = CodeLocation.sourceFileFor(TestA.class);
 
-        MethodTextifier result = adaptMethodCalls(input, new Predicate<AccessibleSignature>() {
+        MethodTextifier result = adaptStaticAccess(input, new Predicate<AccessibleSignature>() {
             @Override
             public boolean apply(AccessibleSignature methodSignature) {
-                return methodSignature.className().equals(TestA.OriginalLogger.class.getName());
+                return methodSignature.className().equals("java.lang.System") &&
+                        methodSignature.methodName().equals("out");
             }
-        }, new DiagnosticsAddingMangler(new SameMethodDifferentClassSelector(TestA.DiagnosticLogger.class)));
+        }, new StraightSwapMangler(new ClassFieldSelector(TestA.Bob.class.getField("stream"))));
 
-        assertThat(result.codeFor("aBuggyMethod"),
-                equalTo(new MethodTextifier(input).codeFor("aBuggyMethodExpectedResult"))
+        assertThat(result.codeFor("printer"),
+                equalTo(new MethodTextifier(input).codeFor("printerExpectedResult"))
         );
     }
 
-    private MethodTextifier adaptMethodCalls(File input,
-                                             final Predicate<AccessibleSignature> predicate,
-                                             final Mangler mangler) throws Exception {
+    private MethodTextifier adaptStaticAccess(File input,
+                                              final Predicate<AccessibleSignature> predicate,
+                                              final Mangler mangler) throws Exception {
         ClassAdapter adapter = new ClassAdapter(input, outputFile);
 
         adapter.adaptWith(new AdapterChain() {
             @Override
             public ClassVisitor insertInto(ClassVisitor visitor) {
-                return new InvocationChanger(visitor, predicate, mangler);
+                return new StaticAccessChanger(visitor, predicate, mangler);
             }
         });
 

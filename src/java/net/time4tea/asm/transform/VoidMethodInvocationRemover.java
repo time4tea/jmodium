@@ -1,7 +1,7 @@
 package net.time4tea.asm.transform;
 
 import com.google.common.base.Predicate;
-import net.time4tea.MethodSignature;
+import net.time4tea.AccessibleSignature;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Handle;
@@ -16,9 +16,9 @@ import java.util.List;
 
 public class VoidMethodInvocationRemover extends ClassVisitor {
 
-    private final Predicate<MethodSignature> predicate;
+    private final Predicate<AccessibleSignature> predicate;
 
-    public VoidMethodInvocationRemover(ClassVisitor parent, Predicate<MethodSignature> predicate) {
+    public VoidMethodInvocationRemover(ClassVisitor parent, Predicate<AccessibleSignature> predicate) {
         super(Opcodes.ASM4, parent);
         this.predicate = predicate;
     }
@@ -177,7 +177,7 @@ public class VoidMethodInvocationRemover extends ClassVisitor {
 
         @Override
         public void visitMethodInsn(final int opcode, final String owner, final String name, final String desc) {
-            MethodSignature signature = new MethodSignature(owner, name, desc);
+            AccessibleSignature signature = new AccessibleSignature(owner, name, desc);
             if (predicate.apply(signature)) {
                     assertAbleToRemove(signature);
 
@@ -287,7 +287,7 @@ public class VoidMethodInvocationRemover extends ClassVisitor {
         }
     }
 
-    private void assertAbleToRemove(MethodSignature signature) {
+    private void assertAbleToRemove(AccessibleSignature signature) {
         if (!signature.returnType().equals(Type.VOID_TYPE)) {
             throw new AdapterRuntimeException(
                     "Unable to remove a method with non void signature " + signature

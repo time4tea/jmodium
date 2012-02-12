@@ -1,8 +1,8 @@
 package net.time4tea.asm.transform;
 
-import net.time4tea.MethodSignature;
+import net.time4tea.AccessibleSignature;
 
-public class SameMethodDifferentClassSelector implements ReplacementMethodSelector {
+public class SameMethodDifferentClassSelector implements ReplacementSelector {
     private final Class<?> classToInvoke;
 
     public SameMethodDifferentClassSelector(Class<?> classToInvoke) {
@@ -10,9 +10,9 @@ public class SameMethodDifferentClassSelector implements ReplacementMethodSelect
     }
 
     @Override
-    public MethodSignature replacementFor(MethodSignature existingSignature) {
-        return new MethodSignature(
-                classToInvoke.getName().replaceAll("\\.", "/"),
+    public AccessibleSignature replacementFor(AccessibleSignature existingSignature) {
+        return new AccessibleSignature(
+                classToInvoke,
                 existingSignature.methodName(),
                 "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V"
         );
