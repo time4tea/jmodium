@@ -9,7 +9,7 @@
     <property name="artifact.jar.production" location="out/jmodium-${version.jmodium}.jar"/>
     <property name="artifact.jar.test" location="out/jmodium-test-${version.jmodium}.jar"/>
 
-    <target name="jar" depends="all">
+    <target name="jar" depends="test">
         <jar jarfile="${artifact.jar.production}">
             <fileset dir="${asm.output.dir}"/>
         </jar>
@@ -19,7 +19,7 @@
         </jar>
     </target>
 
-    <target name="test" depends="jar">
+    <target name="test" depends="all">
         <mkdir dir="out/junit/xml"/>
         <junit fork="false" failureproperty="tests.failed" errorproperty="tests.failed">
 
