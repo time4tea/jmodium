@@ -4,9 +4,42 @@
 
     <tstamp prefix="build.date"/>
 
+    <property name="version.jmodium" value="${build.date.DSTAMP}"/>
+
+    <property name="artifact.jar.production" location="out/jmodium-${version.jmodium}.jar"/>
+    <property name="artifact.jar.test" location="out/jmodium-test-${version.jmodium}.jar"/>
+
     <target name="jar" depends="all">
-        <jar jarfile="out/jmodium-${build.date.DSTAMP}.jar">
+        <jar jarfile="${artifact.jar.production}">
             <fileset dir="${asm.output.dir}"/>
         </jar>
+
+        <jar jarfile="${artifact.jar.test}">
+            <fileset dir="${asm.testoutput.dir}"/>
+        </jar>
+    </target>
+
+    <target name="test" depends="jar">
+        <mkdir dir="out/junit/xml"/>
+        <junit fork="false" failureproperty="tests.failed" errorproperty="tests.failed">
+
+            <formatter type="plain"/>
+
+            <classpath>
+                <pathelement location="${asm.output.dir}"/>
+                <pathelement location="${asm.testoutput.dir}"/>
+                <path refid="library.asm-debug-all-4.0.classpath"/>
+                <path refid="library.testing.classpath"/>
+                <path refid="library.guava-10.0.1.classpath"/>
+            </classpath>
+
+            <batchtest todir="out/junit/xml">
+                <fileset dir="${module.asm.basedir}/src/test">
+                    <include name="**/*Test.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+
+        <fail message="tests failed" if="tests.failed"/>
     </target>
 </project>
