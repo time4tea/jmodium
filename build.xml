@@ -1,0 +1,12 @@
+<project name="jmodium" default="jar">
+
+    <import file="asm.xml"/>
+
+    <tstamp prefix="build.date"/>
+
+    <target name="jar" depends="all">
+        <jar jarfile="out/jmodium-${build.date.DSTAMP}.jar">
+            <fileset dir="${asm.output.dir}"/>
+        </jar>
+    </target>
+</project>
