@@ -25,7 +25,7 @@ public class ClassAdapter {
     public ClassAdapter(InputStream input, OutputStream output) {
         this.input = input;
         this.output = output;
-        this.parent = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+        this.parent = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     }
 
     public void adaptWith(AdapterChain adapterChain) throws IOException, AdapterException {

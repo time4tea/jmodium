@@ -1,5 +1,6 @@
 package net.time4tea.asm.transform.jar;
 
+import com.google.common.io.ByteStreams;
 import net.time4tea.asm.transform.adapter.AdapterChain;
 import net.time4tea.asm.transform.adapter.AdapterException;
 import net.time4tea.asm.transform.adapter.ClassAdapter;
@@ -26,35 +27,24 @@ public class JarAdapter {
         this.adapter = adapter;
     }
 
-
     public void adapt() throws IOException, AdapterException {
         JarInputStream inJar = new JarInputStream(new FileInputStream(input));
-        JarOutputStream outJar = new JarOutputStream(new FileOutputStream(output),inJar.getManifest());
-
+        JarOutputStream outJar = new JarOutputStream(new FileOutputStream(output), inJar.getManifest());
 
         try {
             JarEntry entry;
             while ((entry = inJar.getNextJarEntry()) != null) {
 
-
-                System.out.println("entry = " + entry + " size " + entry.getSize());
-                int size = (int) entry.getSize();
-                byte[] bytes= new byte[size];
-
-                int total = 0;
-                while ( total < size ) {
-                    total += inJar.read(bytes, total, ( size - total ));
-                }
-
-                if ( isCode(entry)) {
-                    ByteArrayOutputStream adapted = new ByteArrayOutputStream(size);
-                    new ClassAdapter(new ByteArrayInputStream(bytes), adapted).adaptWith(adapter);
+                if (entry.isDirectory()) {
+                    outJar.putNextEntry(entry);
+                } else if (isCode(entry)) {
+                    ByteArrayOutputStream adapted = new ByteArrayOutputStream();
+                    new ClassAdapter(new ByteArrayInputStream(ByteStreams.toByteArray(inJar)), adapted).adaptWith(adapter);
                     outJar.putNextEntry(new JarEntry(entry.getName()));
                     outJar.write(adapted.toByteArray());
-                }
-                else {
+                } else {
                     outJar.putNextEntry(entry);
-                    outJar.write(bytes);
+                    ByteStreams.copy(inJar, outJar);
                 }
             }
         } finally {
@@ -64,6 +54,6 @@ public class JarAdapter {
     }
 
     private boolean isCode(JarEntry entry) {
-        return ! entry.isDirectory() && entry.getName().endsWith(".class");
+        return !entry.isDirectory() && entry.getName().endsWith(".class");
     }
 }
