@@ -36,10 +36,16 @@ public class JarAdapter {
             JarEntry entry;
             while ((entry = inJar.getNextJarEntry()) != null) {
 
+
+                System.out.println("entry = " + entry + " size " + entry.getSize());
                 int size = (int) entry.getSize();
                 byte[] bytes= new byte[size];
-                inJar.read(bytes);
-    
+
+                int total = 0;
+                while ( total < size ) {
+                    total += inJar.read(bytes, total, ( size - total ));
+                }
+
                 if ( isCode(entry)) {
                     ByteArrayOutputStream adapted = new ByteArrayOutputStream(size);
                     new ClassAdapter(new ByteArrayInputStream(bytes), adapted).adaptWith(adapter);
