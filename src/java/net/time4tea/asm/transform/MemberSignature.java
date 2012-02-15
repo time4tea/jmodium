@@ -20,6 +20,10 @@ public class MemberSignature {
         this.desc = desc;
     }
 
+    public MemberSignature(Method method) {
+        this(method.getClass(), method.getName(), Type.getMethodDescriptor(method));
+    }
+
     @Override
     public String toString() {
         return "MemberSignature{" +
@@ -58,15 +62,21 @@ public class MemberSignature {
     }
 
     public Method asMethod() throws ClassNotFoundException, NoSuchMethodException {
+        String className = className();
 
+        return asMethodOnClass(Class.forName(className));
+    }
+
+    public Method asMethodOnClass(Class<?> klass) throws ClassNotFoundException, NoSuchMethodException {
         Type[] types = argumentTypes();
-        
+
         Class<?>[] classes = new Class<?>[types.length];
 
         for (int i = 0; i < types.length; i++) {
             classes[i] = Class.forName(types[i].getClassName());
         }
 
-        return Class.forName(className()).getMethod(name(), classes);
+        return klass.getMethod(name(), classes);
     }
+
 }

@@ -25,4 +25,25 @@ public class MemberSignatureTest {
         assertThat(method, equalTo(expected));
     }
     
+    public interface FirstClass {
+        void foo(String a);
+    }
+    
+    public interface SecondClass {
+        void foo(String a);
+    }
+    
+    @Test
+    public void sameMethodOnDifferentClass() throws Exception {
+        MemberSignature signature = new MemberSignature(FirstClass.class.getMethod("foo", String.class));
+
+        Method expected = SecondClass.class.getMethod("foo", String.class);
+
+        Method method = signature.asMethodOnClass(SecondClass.class);
+
+        assertThat(method, equalTo(expected));
+
+    }
+    
+    
 }
