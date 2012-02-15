@@ -26,19 +26,10 @@ public class MemberSignature {
         this(method.getDeclaringClass(), method.getName(), Type.getMethodDescriptor(method));
     }
 
-    @Override
-    public String toString() {
-        return "MemberSignature{" +
-                "owner='" + owner + '\'' +
-                ", name='" + name + '\'' +
-                ", desc='" + desc + '\'' +
-                '}';
-    }
-
     public Type returnType() {
         return Type.getReturnType(desc);
     }
-    
+
     public String descriptor() {
         return desc;
     }
@@ -81,6 +72,15 @@ public class MemberSignature {
         arraycopy(additionalArgs, 0, classes, types.length, additionalArgs.length);
 
         return klass.getMethod(name(), classes);
+    }
+
+    @Override
+    public String toString() {
+        return "MemberSignature{" +
+                "owner='" + owner + '\'' +
+                ", name='" + name + '\'' +
+                ", desc='" + desc + '\'' +
+                '}';
     }
 
 }
