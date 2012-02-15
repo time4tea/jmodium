@@ -46,4 +46,12 @@ public class MemberSignature {
     public String name() {
         return name;
     }
+
+    boolean hasReturnType(Type type) {
+        return returnType().equals(type);
+    }
+
+    public Type[] argumentTypes() {
+        return Type.getArgumentTypes(descriptor());
+    }
 }

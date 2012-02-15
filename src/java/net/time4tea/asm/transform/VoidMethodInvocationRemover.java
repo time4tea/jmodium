@@ -8,11 +8,12 @@ import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.objectweb.asm.Type.VOID_TYPE;
 
 public class VoidMethodInvocationRemover extends ClassVisitor {
 
@@ -288,7 +289,7 @@ public class VoidMethodInvocationRemover extends ClassVisitor {
     }
 
     private void assertAbleToRemove(MemberSignature signature) {
-        if (!signature.returnType().equals(Type.VOID_TYPE)) {
+        if (!signature.hasReturnType(VOID_TYPE)) {
             throw new AdapterRuntimeException(
                     "Unable to remove a method with non void signature " + signature
             );

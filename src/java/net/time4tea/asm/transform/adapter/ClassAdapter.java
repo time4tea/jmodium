@@ -29,7 +29,7 @@ public class ClassAdapter {
     }
 
     public void adaptWith(AdapterChain adapterChain) throws IOException, AdapterException {
-        CheckClassAdapter adapter = new CheckClassAdapter(parent);
+        CheckClassAdapter adapter = new CheckClassAdapter(parent,false);
         try {
             new AsmReader(input, 0).readWith(
                     adapterChain.insertInto(adapter)

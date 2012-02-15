@@ -16,7 +16,7 @@ public class DiagnosticsAddingMangler implements Mangler {
     public void changeInvocation(int opcode, MethodVisitor visitor, MemberSignature invocation, BytecodeLocation location) {
         visitor.visitLdcInsn(location.className());
         visitor.visitLdcInsn(location.methodName());
-        visitor.visitIntInsn(Opcodes.SIPUSH, location.lineNumber());
+        pushLineNumber(visitor, location);
 
         MemberSignature replacement = selector.replacementFor(invocation);
 
@@ -27,4 +27,15 @@ public class DiagnosticsAddingMangler implements Mangler {
                 replacement.descriptor()
         );
     }
+
+    private void pushLineNumber(MethodVisitor visitor, BytecodeLocation location) {
+        int lineNumber = location.lineNumber();
+        if (lineNumber < Byte.MAX_VALUE) {
+            visitor.visitIntInsn(Opcodes.BIPUSH, lineNumber);
+        } else {
+            visitor.visitIntInsn(Opcodes.SIPUSH, lineNumber);
+        }
+    }
+
+
 }

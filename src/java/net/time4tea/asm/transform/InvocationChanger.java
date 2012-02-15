@@ -8,6 +8,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 public class InvocationChanger extends ClassVisitor {
+
     private Predicate<MemberSignature> methodsToChange;
     private Mangler mangler;
     private MutableBytecodeLocation location;
@@ -48,7 +49,7 @@ public class InvocationChanger extends ClassVisitor {
             return lineNumber;
         }
     }
-    
+
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 
@@ -70,6 +71,7 @@ public class InvocationChanger extends ClassVisitor {
                     super.visitMethodInsn(opcode, owner, name, desc);
                 }
             }
+
         };
     }
 }

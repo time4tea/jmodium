@@ -26,6 +26,10 @@ public class ClassMemberNamedPredicate implements Predicate<MemberSignature> {
         return new ClassMemberNamedPredicate(equalTo(name));
     }
 
+    public static Predicate<MemberSignature> methodIs(String name) {
+        return new ClassMemberNamedPredicate(equalTo(name));
+    }
+
     public static Predicate<MemberSignature> fieldNamed(Predicate<String> name) {
         return new ClassMemberNamedPredicate(name);
     }
