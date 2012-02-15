@@ -4,6 +4,8 @@ import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
 
+import static java.lang.System.arraycopy;
+
 public class MemberSignature {
 
     private final String owner;
@@ -21,7 +23,7 @@ public class MemberSignature {
     }
 
     public MemberSignature(Method method) {
-        this(method.getClass(), method.getName(), Type.getMethodDescriptor(method));
+        this(method.getDeclaringClass(), method.getName(), Type.getMethodDescriptor(method));
     }
 
     @Override
@@ -67,14 +69,16 @@ public class MemberSignature {
         return asMethodOnClass(Class.forName(className));
     }
 
-    public Method asMethodOnClass(Class<?> klass) throws ClassNotFoundException, NoSuchMethodException {
+    public Method asMethodOnClass(Class<?> klass, Class<?>... additionalArgs) throws ClassNotFoundException, NoSuchMethodException {
         Type[] types = argumentTypes();
 
-        Class<?>[] classes = new Class<?>[types.length];
+        Class<?>[] classes = new Class<?>[types.length + additionalArgs.length];
 
         for (int i = 0; i < types.length; i++) {
             classes[i] = Class.forName(types[i].getClassName());
         }
+
+        arraycopy(additionalArgs, 0, classes, types.length, additionalArgs.length);
 
         return klass.getMethod(name(), classes);
     }

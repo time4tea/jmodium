@@ -1,5 +1,6 @@
 package net.time4tea.asm.transform;
 
+import net.time4tea.asm.transform.adapter.AdapterRuntimeException;
 import org.objectweb.asm.Type;
 
 public class SameMethodDifferentClassSelector implements ReplacementSelector {
@@ -11,15 +12,17 @@ public class SameMethodDifferentClassSelector implements ReplacementSelector {
 
     @Override
     public MemberSignature replacementFor(MemberSignature existingSignature) {
-
-        Type[] types = existingSignature.argumentTypes();
-
-//        Method existingMethod = classToInvoke.getMethod(existingSignature.name())
-        
-        return new MemberSignature(
-                classToInvoke,
-                existingSignature.name(),
-                "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V"
-        );
+        try {
+            return new MemberSignature(existingSignature.asMethodOnClass(
+                        classToInvoke,
+                        String.class,
+                        String.class,
+                        int.class
+                ));
+        } catch (ClassNotFoundException e) {
+            throw new AdapterRuntimeException("Unable to find replacement class", e);
+        } catch (NoSuchMethodException e) {
+            throw new AdapterRuntimeException("Unable to find replacement method", e);
+        }
     }
 }

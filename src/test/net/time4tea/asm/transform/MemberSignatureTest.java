@@ -10,6 +10,15 @@ import static org.hamcrest.Matchers.equalTo;
 public class MemberSignatureTest {
     
     @Test
+    public void constructorWithMethod() throws Exception {
+        Method expected = System.class.getMethod("currentTimeMillis");
+
+        MemberSignature signature = new MemberSignature(expected);
+        
+        assertThat(signature.className(), equalTo("java.lang.System"));
+    }
+    
+    @Test
     public void methodNoArguments() throws Exception {
         Method expected = System.class.getMethod("currentTimeMillis");
         Method method = new MemberSignature(System.class, "currentTimeMillis", "()V").asMethod();
@@ -31,6 +40,7 @@ public class MemberSignatureTest {
     
     public interface SecondClass {
         void foo(String a);
+        void foo(String a, String b, int c);
     }
     
     @Test
@@ -42,7 +52,17 @@ public class MemberSignatureTest {
         Method method = signature.asMethodOnClass(SecondClass.class);
 
         assertThat(method, equalTo(expected));
+    }
 
+    @Test
+    public void sameMethodNameDifferentSignature() throws Exception {
+        MemberSignature signature = new MemberSignature(FirstClass.class.getMethod("foo", String.class));
+
+        Method expected = SecondClass.class.getMethod("foo", String.class, String.class, int.class);
+
+        Method method = signature.asMethodOnClass(SecondClass.class, String.class, int.class);
+
+        assertThat(method, equalTo(expected));
     }
     
     
