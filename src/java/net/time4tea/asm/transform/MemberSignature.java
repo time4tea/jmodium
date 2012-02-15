@@ -2,6 +2,8 @@ package net.time4tea.asm.transform;
 
 import org.objectweb.asm.Type;
 
+import java.lang.reflect.Method;
+
 public class MemberSignature {
 
     private final String owner;
@@ -53,5 +55,18 @@ public class MemberSignature {
 
     public Type[] argumentTypes() {
         return Type.getArgumentTypes(descriptor());
+    }
+
+    public Method asMethod() throws ClassNotFoundException, NoSuchMethodException {
+
+        Type[] types = argumentTypes();
+        
+        Class<?>[] classes = new Class<?>[types.length];
+
+        for (int i = 0; i < types.length; i++) {
+            classes[i] = Class.forName(types[i].getClassName());
+        }
+
+        return Class.forName(className()).getMethod(name(), classes);
     }
 }

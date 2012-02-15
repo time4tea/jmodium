@@ -9,13 +9,4 @@ public class OriginalLogger implements Logger {
         System.out.println("OriginalLogger.debug");
     }
 
-    @Override
-    public void debug(String s1, Throwable t, String className, String method, int linenumber) {
-        System.out.println("OriginalLogger.debug");
-    }
-
-    @Override
-    public void debug(String s1, String className, String method, int linenumber) {
-        System.out.println("OriginalLogger.debug");
-    }
 }

@@ -6,6 +6,7 @@ import net.time4tea.CodeLocation;
 import net.time4tea.asm.transform.adapter.AdapterChain;
 import net.time4tea.asm.transform.adapter.ClassAdapter;
 import net.time4tea.asm.transform.debuginformationadder.TestA;
+import net.time4tea.asm.transform.debuginformationadder.invokeinterface.DiagnosticsLogger;
 import net.time4tea.asm.transform.debuginformationadder.invokeinterface.Logger;
 import net.time4tea.asm.transform.debuginformationadder.invokeinterface.TestB;
 import net.time4tea.asm.transform.trace.MethodTextifier;
@@ -18,6 +19,7 @@ import org.objectweb.asm.ClassVisitor;
 import java.io.File;
 
 import static com.google.common.base.Predicates.and;
+import static net.time4tea.MethodTextifierTest.lines;
 import static net.time4tea.asm.transform.predicate.ClassMemberNamedPredicate.methodIs;
 import static net.time4tea.asm.transform.predicate.ClassNamedPredicate.classIs;
 import static net.time4tea.asm.transform.predicate.ParameterCountPredicate.parameterCount;
@@ -50,18 +52,27 @@ public class InvocationChangerTest {
         );
     }
 
+    // can't write example for this, as the code would be invalid....
     @Test
     public void canChangeInterfaceInvoked() throws Exception {
         File input = CodeLocation.sourceFileFor(TestB.class);
-        File expected = CodeLocation.sourceFileFor(TestB.class);
 
         Predicate<MemberSignature> debug = and(classIs(Logger.class), methodIs("debug"), parameterCount(Ranges.lessThan(3)));
         MethodTextifier result = adaptMethodCalls(input,
                 debug,
-                        new DiagnosticsAddingMangler(new SameMethodDifferentClassSelector(Logger.class)));
+                new DiagnosticsAddingMangler(new SameMethodDifferentClassSelector(DiagnosticsLogger.class)));
 
         assertThat(result.codeFor("aBuggyMethod"),
-                equalTo(new MethodTextifier(expected).codeFor("aBuggyMethodExpectedResult"))
+                equalTo(lines(
+                        "ALOAD 0",
+                        "GETFIELD net/time4tea/asm/transform/debuginformationadder/invokeinterface/TestB.logger : Lnet/time4tea/asm/transform/debuginformationadder/invokeinterface/Logger;",
+                        "LDC \"got balance\"",
+                        "LDC \"net.time4tea.asm.transform.debuginformationadder.invokeinterface.TestB\"",
+                        "LDC \"aBuggyMethod\"",
+                        "BIPUSH 9",
+                        "INVOKEINTERFACE net/time4tea/asm/transform/debuginformationadder/invokeinterface/DiagnosticsLogger.debug (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V",
+                        "RETURN"
+                ))
         );
     }
 
